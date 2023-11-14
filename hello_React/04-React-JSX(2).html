@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+
   <body>
     <div id="root"></div>
   </body>
+
   <script
     crossorigin
     src="https://unpkg.com/react@18/umd/react.development.js"
@@ -20,33 +22,25 @@
     crossorigin
     src="https://unpkg.com/@babel/standalone@7.8.3/babel.min.js"
   ></script>
-  <script type="text/babel">
-    const rootElement = document.getElementById('root');
 
+  <script type="text/babel">
+    const rootElement = document.getElementById('root'); // obtener una referencia a un elemento HTML específico
+    
+    /* generando atributos */
     const className = 'container';
     const hello = 'Hello';
-
-    const getClassName = () => 'container';
-
-    const divProps = {
-      className: getClassName(),
+    const getClassName = () => 'container';    // funcion que devuelve 'container'
+    const divProps = {                         // variable que almacena un objeto JavaScript.
+      className: getClassName(),               // puedo pasar todo lo que devuelve algo
       id: 'id',
-      onClick: () => {
-        console.log('Clicked');
-      },
+      onClick: () => {console.log('Clicked');} // manejador de eventos de clic que imprimirá "Clicked"
     };
 
+    /* pasando atributos al elemento */
     const element = (
-      <div
-        // className={getClassName()}
-        // id="id"
-        // onClick={() => {
-        //   console.log('Clicked');
-        // }}
-        id="id1"
-        {...divProps}
-      >
-        {/* Comment */}
+      <div id="id1" {...divProps}> 
+        {/* renderizo comentario entre corchetes */}
+        {/* además... Qué cosas renderiza? */}
         <span>{hello}</span>
 
         <div>{5 + 5}</div>
