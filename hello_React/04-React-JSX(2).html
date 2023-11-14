@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+  <script
+    crossorigin
+    src="https://unpkg.com/react@18/umd/react.development.js"
+  ></script>
+  <script
+    crossorigin
+    src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+  ></script>
+  <script
+    crossorigin
+    src="https://unpkg.com/@babel/standalone@7.8.3/babel.min.js"
+  ></script>
+  <script type="text/babel">
+    const rootElement = document.getElementById('root');
+
+    const className = 'container';
+    const hello = 'Hello';
+
+    const getClassName = () => 'container';
+
+    const divProps = {
+      className: getClassName(),
+      id: 'id',
+      onClick: () => {
+        console.log('Clicked');
+      },
+    };
+
+    const element = (
+      <div
+        // className={getClassName()}
+        // id="id"
+        // onClick={() => {
+        //   console.log('Clicked');
+        // }}
+        id="id1"
+        {...divProps}
+      >
+        {/* Comment */}
+        <span>{hello}</span>
+
+        <div>{5 + 5}</div>
+        <div>{`${hello} David`}</div>
+        <div>{null}</div>
+        <div>{true}</div>
+        <div>{false}</div>
+        <div>true</div>
+        <div>{JSON.stringify({ a: 1, b: 2 })}</div>
+      </div>
+    );
+
+    console.log(element);
+    ReactDOM.createRoot(rootElement).render(element);
+
+    // const element = document.createElement('div');
+    // element.textContent = 'Hello World!';
+    // element.className = 'container';
+    // rootElement.appendChild(element);
+  </script>
+</html>
