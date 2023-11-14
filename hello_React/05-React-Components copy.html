@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+
   <body>
     <div id="root"></div>
   </body>
+
   <script
     crossorigin
     src="https://unpkg.com/react@18/umd/react.development.js"
@@ -20,17 +22,18 @@
     crossorigin
     src="https://unpkg.com/@babel/standalone@7.8.3/babel.min.js"
   ></script>
+
   <script type="text/babel">
     const rootElement = document.getElementById('root');
 
-    const Message = ({ className, children }) => (
+    // utilizas el componente Message en tu elemento -> className="hello" -> children=Hello, Keepcoding
+    const Message = ({ className, children }) => ( 
       <span className={className}>{children}</span>
     );
 
     const element = (
       <div className="containter">
-        {/* message({ text: 'Hello, Keepcoding', className: 'hello' }) */}
-        <Message className="hello">Hello, Keepcoding</Message>
+        <Message className="hello">Hello, Keepcoding</Message> 
         <Message className="bye">Goodbye, Keepcoding</Message>
         <Message className="third">
           <span>
@@ -38,7 +41,6 @@
           </span>
           <Message className="inside">Inside</Message>
         </Message>
-        {/* message({ text: 'Goodbye, Keepcoding', className: 'bye' }) */}
       </div>
     );
 
