@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+
   <body>
     <div id="root"></div>
   </body>
+
   <script
     crossorigin
     src="https://unpkg.com/react@18/umd/react.development.js"
@@ -16,12 +18,16 @@
     crossorigin
     src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
   ></script>
+  <!-- 
+    importo babel para transofmrar codigo JSX a JS  https://babeljs.io/repl/ 
+  -->
   <script
     crossorigin
     src="https://unpkg.com/@babel/standalone@7.8.3/babel.min.js"
   ></script>
-  <script type="text/babel">
-    const rootElement = document.getElementById('root');
+
+  <script type="text/babel"> // le digo que es babel --> de esta forma entiende que es JS real, pero son elemento react sin más
+    const rootElement = document.getElementById('root'); // FUNCION REACT que crea elementos
 
     const element = (
       <div className="containter">
@@ -40,11 +46,6 @@
     //   React.createElement('span', { children: 'Hello' }),
     // );
     console.log(element);
-    ReactDOM.createRoot(rootElement).render(element);
-
-    // const element = document.createElement('div');
-    // element.textContent = 'Hello World!';
-    // element.className = 'container';
-    // rootElement.appendChild(element);
+    ReactDOM.createRoot(rootElement).render(element); // FUNCION REACT que pasa elemento
   </script>
 </html>

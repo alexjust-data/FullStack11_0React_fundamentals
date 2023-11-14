@@ -5,32 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+
   <body>
-    <div id="root"></div>
+    <div id="root"></div> <!-- voy a meter dentro una class=container con "Hello word"-->
   </body>
+
+  <!--importo react@18-->
   <script
     crossorigin
     src="https://unpkg.com/react@18/umd/react.development.js"
   ></script>
+
+  <!--importo react-dom@18-->
   <script
     crossorigin
     src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
   ></script>
-  <script type="text/javascript">
-    const rootElement = document.getElementById('root');
 
-    const element = React.createElement(
-      'div',
+  <script type="text/javascript">
+    const rootElement = document.getElementById('root'); // capturo el elemento id="root"
+    const element = React.createElement(                 // genero elemento hijo
+      'div',                                             // le paso objeto de propiedades
       {
-        className: 'container',
+        className: 'container',            
         id: 'id',
-        children: 'Hello World!',
+        children: 'Hello World!',                        // le paso el hijo dento del elemento
         style: { color: 'red' },
       },
       React.createElement('span', { children: 'Hello' }),
     );
     console.log(element);
-    ReactDOM.createRoot(rootElement).render(element);
+    ReactDOM.createRoot(rootElement).render(element);    // le meto en "rootElement" y renderizo "element"
 
     // const element = document.createElement('div');
     // element.textContent = 'Hello World!';
