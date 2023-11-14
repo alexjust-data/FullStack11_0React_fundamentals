@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+
   <body>
-    <div id="root"></div>
+    <div id="root"></div> 
   </body>
+
+  <!--me creo el script-->
   <script type="text/javascript">
-    const rootElement = document.getElementById('root');
-    const element = document.createElement('div');
-    element.textContent = 'Hello World!';
-    element.className = 'container';
+    const rootElement = document.getElementById('root'); // estoy llamando al id=root del body
+    const element = document.createElement('div');       // creo el elemento div y
+    element.textContent = 'Hello World!';                // le genero atributos
+    element.className = 'container';                     // ..
     console.log(element);
-    rootElement.appendChild(element);
+    rootElement.appendChild(element);                    // agrego elemento al id=root
   </script>
 </html>
