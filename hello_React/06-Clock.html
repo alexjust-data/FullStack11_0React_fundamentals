@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+
   <body>
     <div id="root"></div>
   </body>
+  
   <script
     crossorigin
     src="https://unpkg.com/react@18/umd/react.development.js"
@@ -20,22 +22,25 @@
     crossorigin
     src="https://unpkg.com/@babel/standalone@7.8.3/babel.min.js"
   ></script>
+
   <script type="text/babel">
     const rootElement = document.getElementById('root');
-    const reactRoot = ReactDOM.createRoot(rootElement);
+    const reactRoot = ReactDOM.createRoot(rootElement); // para que createRoot lo hago 1 vez no cada segundo
 
     function tick() {
-      const now = new Date().toLocaleTimeString();
+      const now = new Date().toLocaleTimeString();      // hora actual 
+      
       const clockElement = (
         <div className="container">
           <span className="clock">{now}</span>
         </div>
       );
 
-      reactRoot.render(clockElement);
+      reactRoot.render(clockElement); // toma clockElement y lo está renderizando en el DOM a través del "root"
     }
 
-    tick();
-    setInterval(tick, 1000);
+    tick();                   // llamo a la funcion
+    setInterval(tick, 1000);  // actualizo la funcion cada segundo 
+
   </script>
 </html>

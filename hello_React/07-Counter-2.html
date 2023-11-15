@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+
   <body>
     <div id="root"></div>
   </body>
+
+
   <script
     crossorigin
     src="https://unpkg.com/react@18/umd/react.development.js"
@@ -20,18 +23,24 @@
     crossorigin
     src="https://unpkg.com/@babel/standalone@7.8.3/babel.min.js"
   ></script>
+
+
   <script type="text/babel">
     const rootElement = document.getElementById('root');
     const reactRoot = ReactDOM.createRoot(rootElement);
 
-    const Counter = () => {
-      const [counter, setCounter] = React.useState(0);
+    // en mayúscula
+    const Counter = () => {                            //  toma un evento como argumento
+      const [counter, setCounter] = React.useState(0); // React.useState(0) : definir un estado llamado counter inicializado en 0
+                                                       // crea una variable de estado llamada "counter" y función de actualización setCounter.
       const clickHandler = event => {
         console.log('Clicked', event);
-        // setCounter(counter + 1);
-        setCounter(c => c + 1);
+        
+        // función de flecha que toma el valor actual del estado "counter"=="c" y devuelve un nuevo valor de c
+        setCounter(c => c + 1); // actualizar el estado en un componente, c representa el valor actual del estado counter.
       };
-
+      
+      //  onClick es un atributo especial en React
       return (
         <div>
           <button onClick={clickHandler}>Click me!</button>
@@ -40,7 +49,7 @@
       );
     };
 
-    const counterElement = <Counter />;
+    const counterElement = <Counter />; // <Counter /> componente funcional de React que has definido anteriormente en tu código.
 
     reactRoot.render(counterElement);
   </script>
