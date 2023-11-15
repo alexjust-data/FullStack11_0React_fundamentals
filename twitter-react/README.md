@@ -213,3 +213,105 @@ export default App;
 ```
 
 elimino `reportWebVitals.js` y quito el `import reportWebVitals from './reportWebVitals';` de `index.js`
+
+
+---
+
+Vamos a crear un listado de tweets
+
+Vamos al componente `App.js`
+
+Creo carpet `scr/pages` que iremos almacendao nuestras paginas, dividiremos las páginas por concepto de productos `scr/pages/tweets` y me creo un `tweets.js`para meter el componente de listado de tweets, un componente solo es una funcion:
+
+```js
+// listado de tweets
+const tweets = [
+  {
+    content:
+      "Nos hace mucha ilusión anunciar la fecha del ESTRENO de 'Eso que tu me das', documental con la última entrevista a Pau Donés. 30 DE SEPTIEMBRE, en cines de toda España. @WarnerBrosSpain Y este es el cartel definitivo, con algunas frases de críticas que ya se han publicado.",
+    userId: 1,
+    updatedAt: '2021-03-15T18:23:57.579Z',
+    id: 1,
+  },
+  {
+    content:
+      "'Soy muy fan tuya, pero ahora no me acuerdo cómo te llamas' (Una desconocida, en la calle).",
+    userId: 1,
+    updatedAt: '2021-03-15T18:24:56.773Z',
+    id: 2,
+  },
+];
+
+// con esto ya me saca los tweets por pantalla
+function TweetsPage() {
+    return (
+    <div>
+      <ul>
+          <li>{tweets[0].content}</li>
+          <li>{tweets[1].content}</li>
+      </ul>
+    </div>
+  );
+}
+
+// lo exporto
+export default TweetsPage;
+```
+
+
+Me voy al componente `src/App.js` y me importo `tweets.js` colocando el componente para que lo pinte `<TweetsPage></TweetsPage>`
+
+```js
+import TweetsPage from './pages/tweets/TweetsPage';
+
+function App() {
+  return (
+    <div className="App">
+          <TweetsPage></TweetsPage>
+    </div>
+  );
+}
+
+export default App;
+```
+
+Pero esta no es la manera 
+
+```js
+        <li>{tweets[0].content}</li>
+        <li>{tweets[1].content}</li>
+```
+
+Vamos a mirar como se renderizan listas. Si tienes un array de datos como el array `const tweets` y quieres transformarlo en un array de elementos. Com map vamos a randerizar listas:
+
+```js
+function TweetsPage() {
+    return (
+    <div>
+      <ul>
+        {
+            tweets.map(tweet => (<li>{tweet.content}</li>))
+        }
+      </ul>
+    </div>
+  );
+}
+```
+Ahora bien, cuando estas haciendo listas y cambios y millones de lineas, si le pones un identificados React no te dará problemas. Siempre que tengas un map o listas, el elemento revuelto ha de tener una `key id`.
+
+
+```js
+function TweetsPage() {
+    return (
+    <div>
+      <ul>
+        {
+            tweets.map(tweet => (
+                <li key={tweet.id}>{tweet.content}</li>
+                ))
+        }
+      </ul>
+    </div>
+  );
+}
+```
