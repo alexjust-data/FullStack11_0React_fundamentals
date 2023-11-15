@@ -196,6 +196,8 @@ function App() {
 ```
 ---
 
+### Listas
+
 Voy a quitar `App.css` porque vamos a crearnos nuestro fichero nosotros. Voy a modificar ahora `App.js` dejando sólo lo siguiente dentro:
 
 ```js
@@ -297,8 +299,8 @@ function TweetsPage() {
   );
 }
 ```
-Ahora bien, cuando estas haciendo listas y cambios y millones de lineas, si le pones un identificados React no te dará problemas. Siempre que tengas un map o listas, el elemento revuelto ha de tener una `key id`.
 
+Ahora bien, cuando estas haciendo listas y cambios y millones de lineas, si le pones un identificados React no te dará problemas. Siempre que tengas un map o listas, el elemento revuelto ha de tener una `key id`.
 
 ```js
 function TweetsPage() {
@@ -315,3 +317,205 @@ function TweetsPage() {
   );
 }
 ```
+
+### Aplicando estilos
+
+Vamos hacer un stylo básico en la lista con atributo `className` simplememnte definiendo dentro de `<div className="tweetsPage">` el atributo con el nombre ya vale, luego lo definimos el css y listo
+
+
+```js
+function TweetsPage() {
+    return (
+    <div className="tweetsPage">
+      <ul>
+        {
+            tweets.map(tweet => (
+                <li key={tweet.id}>{tweet.content}</li>
+                ))
+        }
+      </ul>
+    </div>
+  );
+}
+```
+Defino `scr/TweetsPage.css`
+
+```css
+.tweetsPage {
+    color: red
+}
+```
+
+para incorporar el estilo css lo importas en la página `TweetsPage.js` así `import './TweetsPage.css'` . En ese momento se ha incorporado en la página porque coincide la clase. Esto lo permite Webpacj, no React.
+
+Podríamos complicar este css y le podríasmos aplicar **condicionalmente** que si la clase es `dark` (añado variable booleana `dark`) si no aplica `light` --> lo podemos hacer porque tenemos acceso a JS `<div className={'tweetsPage'${dark ? 'dark' : 'light'}'}>`
+
+```js
+const dark = true;
+
+function TweetsPage() {
+    return (
+    <div className={`tweetsPage'${dark ? 'dark' : 'light'}`}>
+      <ul>
+        {
+            tweets.map(tweet => (
+                <li key={tweet.id}>{tweet.content}</li>
+                ))
+        }
+      </ul>
+    </div>
+  );
+}
+```
+
+te vas `` y le aplicas un estile nuevo
+
+```css
+.tweetsPage {
+    color: red
+}
+
+.dark {
+    background-color: aliceblue;
+    color:aqua;
+}
+```
+
+por cada valor se aplicará un estilo u otra . Imagínate que en vez de llegar por una variable llega por una propiedad.  `function TweetsPage({ dark }) {}`
+
+```js
+const dark = true;
+
+function TweetsPage({ dark }) {
+    return (
+    <div className={`tweetsPage'${dark ? 'dark' : 'light'}`}>
+      <ul>
+        {
+            tweets.map(tweet => (
+                <li key={tweet.id}>{tweet.content}</li>
+                ))
+        }
+      </ul>
+    </div>
+  );
+}
+```
+
+Si llega desde una prop imaginate que yo la puedo pasar desde `Àpp.js` desde el componente lo podemos controlar `<TweetsPage dark={false}>`. Le quitas la variable `const dark = true;` y se la pasas por el coponente
+
+```js
+import TweetsPage from './pages/tweets/TweetsPage';
+
+function App() {
+  return (
+    <div className="App">
+          <TweetsPage dark={false}/>
+    </div>
+  );
+}
+
+export default App;
+```
+
+cuando son atributos bool¡anos puedes escribirlo así `<TweetsPage dark={false}>` o así `<TweetsPage dark/>`. Esto `<div className={'tweetsPage'${dark ? 'dark' : 'light'}'}>` se podría complicar mucho, por esto es bueno que te mires estas librerías
+
+https://github.com/JedWatson/classnames
+
+https://github.com/lukeed/clsx
+
+Estas librerías permiten construir string pero con clases complejas podemos usar las utilidades `usage` de git
+
+
+```sh
+npm install --save clsx
+```
+`import clsx from 'clsx';` en `TweetPAge.js`
+
+creas la variable `const className = clsx("tweetsPage", {dark: dark, light: !dark})` y se la pasas así `<div className={className}> `
+
+
+```js
+import clsx from 'clsx';
+
+function TweetsPage({ dark }) {
+const className = clsx("tweetsPage", {dark: dark, light: !dark})
+return (
+    <div className={className}> 
+    <ul>
+        {
+            tweets.map(tweet => (
+                <li key={tweet.id}>{tweet.content}</li>
+                ))
+        }
+    </ul>
+    </div>
+);
+}
+```
+
+Entonces desde `App.js` en `<TweetsPage dark={false}/>` lo que le pases debe fucncionar igual. 
+
+Has de tener cuidado porque hemos puesto en `TweetsPage.css` por ejemplo nada me impide que otro componente tuviera una clase que se llamara igual que `.tweetsPage` en el css y sobreescriba. Webpack lo que hace es meterlo todo en un css general y gana el ultimo. 
+
+```css
+.tweetsPage {
+    color: red
+}
+
+.dark {
+    background-color: aliceblue;
+    color:aqua;
+}
+```
+
+Para evitar colisiones hay una tecnica que se llama `module.css` que por cada clase que definas en ese fichero de aplicará un hashunico que te evitará colisiones de clases. Simplemente te creas un nuevo fichero `TweetsPage.module.css` y metes tus calses. Y ahora la aplicas:
+
+
+```js
+import clsx from 'clsx';
+
+function TweetsPage({ dark }) {
+    //const className = clsx("tweetsPage", {dark: dark, light: !dark})
+    const className = clsx(styles.tweetsPage, {[styles.dark] : dark})
+    return (
+        <div className={className}> 
+        <ul>
+            {
+                tweets.map(tweet => (
+                    <li key={tweet.id}>{tweet.content}</li>
+                    ))
+            }
+        </ul>
+        </div>
+    );
+}
+```
+fíjate que estmos sacando de `styles` los nombres de las clases que etsamos importanto `import styles from './TweetsPage.module.css'` yo se que está dentro de styles y crea un atributo con o que tenga dentro la varibale.
+
+
+
+**estilos inline**
+`<ul style={{ listStyle: 'none' }}>`
+
+```js
+import clsx from 'clsx';
+
+function TweetsPage({ dark }) {
+    //const className = clsx("tweetsPage", {dark: dark, light: !dark})
+    const className = clsx(styles.tweetsPage, {[styles.dark] : dark})
+    return (
+        <div className={className}> 
+        <ul style={{ listStyle: 'none' }}>
+            {
+                tweets.map(tweet => (
+                    <li key={tweet.id}>{tweet.content}</li>
+                    ))
+            }
+        </ul>
+        </div>
+    );
+}
+```
+
+
+1:17'

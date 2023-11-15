@@ -1,3 +1,7 @@
+import clsx from 'clsx';
+//import './TweetsPage.css'
+import styles from './TweetsPage.module.css'
+
 // listado de tweets
 const tweets = [
     {
@@ -16,20 +20,26 @@ const tweets = [
     },
   ];
   
-  // con esto ya me saca los tweets por pantalla
-  function TweetsPage() {
+  
+
+
+  function TweetsPage({ dark }) {
+    const className = clsx(styles.tweetsPage, {
+        [styles.dark] : dark,
+        [styles.light] : !dark,
+    })
     return (
-    <div>
-      <ul>
-        {
-            tweets.map(tweet => (
-                <li key={tweet.id}>{tweet.content}</li>
-                ))
-        }
-      </ul>
-    </div>
-  );
-}
+      <div className={className}>
+        <ul>
+          {
+              tweets.map(tweet => (
+                  <li key={tweet.id}>{tweet.content}</li>
+                  ))
+          }
+        </ul>
+      </div>
+    );
+  }
   
   // lo exporto
   export default TweetsPage;
