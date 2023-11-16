@@ -564,7 +564,7 @@ function App() {
 export default App;
 ```
 
-Cualquiercomponente que le pase al button se generará porque es exactamente igual que un botóin pero que tiene estyles determinador `<Button onClick={() => console.log('clicked')}>Click me!</Button>`
+Cualquiercomponente que le pase al button se generará porque es exactamente igual que un botóin pero que tiene estyles determinador `<Button onClick={() => console.log('clicked')}>Click me!</Button>` y aparecerá en console el mensje
 
 Imagina que quieres crear dos variantes del botón, primaria y secundaria. Le puedes pasar una funcion
 
@@ -584,3 +584,265 @@ const Button = styled.button`
 
 export default Button;
 ```
+
+pudes incrustar JS en el css de forma condicional por las `props` que le envíes
+
+```js
+
+const accentColor = 'rgb(29, 161, 242)';
+
+const Button = styled.button`
+  cursor: pointer;
+  border-radius: 9999px;
+  border-style: solid;
+  border-width: 1px;
+  background-color: ${props =>
+    props.$variant === 'primary' ? accentColor : 'white'};
+  color: ${props => (props.$variant === 'primary' ? 'white' : accentColor)};
+`;
+```
+
+También puedes manejar la pseudoclase para que cambie el color cuando pases el ratón por encima
+
+```js
+  &:hover {
+    background-color: ${props =>
+      props.$variant === 'primary'
+        ? 'rgb(26, 145, 218)'
+        : 'rgba(29, 161, 242, 0.1)'};
+  }
+```
+
+
+### UseEffects
+
+Los ideal no es pintar unos tweets que tenemos en el archivo, lo ideal es traerlo desde una Api. Vamos a usar https://axios-http.com/docs/intro
+
+```sh
+npm install axios
+```
+
+Creo carpeta y fichero `src/api/client.js`
+
+```js
+import axios from 'axios';
+
+
+const client = axios.client({
+    baseURL: 'http://localhost:8000',
+});
+
+client.interceptors.response.use(response => response.data)
+
+export default client;
+```
+
+cuando desarrolles fíjate que si pones esto baseURL: `'http://localhost:8000',` implicaría que tienes que mantener dos codigo distintos, uno para desarrollo y otro para producción. Ti tienes que decirle que vaya cambiando mientras trabajas tu o está en producción, o por ejempli si la api cambia, todo esto es un problema y siempre ha de ser fuera del codigo. SIEMPRE QUE HAYAN COSAS DE CONFIGURACIÓN DENTRO DEL CODIGO HAN DE PONERSE FUERA DEL CODIGO, como puede ser nuestra url donde va a estar nuestro endpoint.
+
+PODEMOS PASAR UN FICHERO donde podemos definir este tipo de cosas. Cuado estés es desarrollo o en produccion le podrás inyectar diferentes ficheros de entorno. Siempre hay que hacer este tipo de cosas por variables de entorno. En el browser no hay variables de entorno, en el proceso de **buil** las va a ssustituir compilando, pero en el browser no existe nada de todo esto.
+
+Creamos fichero con variables de entorn `.env`  https://create-react-app.dev/docs/adding-custom-environment-variables  aquí te están diciendo que puedes usar los ficheros que le siguen para cada caso.
+
+`npm start`: .env.development.local, .env.local, .env.development, .env
+`npm run build`: .env.production.local, .env.local, .env.production, .env
+`npm test`: .env.test.local, .env.test, .env (note .env.local is missing)
+
+por ejemplo nosotros ahora usaremos `/scr/.env.development` para `npm start`
+
+```sh
+# mira la documentación de Sparrest y verás los puertos de conexion
+REACT_APP_API_BASE_URL = http://localhost:8001
+```
+
+cuanod ejecutes el comando tendrá prioridad `npm start` y ahora te vas al cliente y lo cambias
+
+```js
+import axios from 'axios';
+
+
+const client = axios.client({
+    baseURL: env.development.REACT_APP_API_BASE_URL,
+});
+
+client.interceptors.response.use(response => response.data)
+
+export default client;
+```
+Y ahora arrancas de nuevo la app `➜  twitter-react git:(11.Aplicando_estilos_2) ✗ npm start` con las variables de entorno cargadas. 
+
+NUNCA en un entorno de desarrollo Front metas en un fichero de varoables de entorno, un valor que pueda ser crítico y que no quieras que lo hacken. En frontend todo lo que metas es público. LLévatelo a un backend a un proxyBackend pero no lo metas en nada del front. En el backend nadie tinee acceso, solo tu.
+
+Ahora en vez de utilizar el cliente directamente me voy a crear un metodo `pages/tweets/service.js`
+
+```js
+import client from "../../api/client.js";
+
+const tweetsUrl = '/api/tweets'; // lo que tiene el cliente
+
+// creo una capita entre el cliente y el componente
+// metodo
+export const getLatestTweets = () => {
+    return client.get(tweetsUrl);
+}
+```
+
+Ahora desde mi componente tengo que hacer la llamada para que el componenete conecte con el servicio , el servicio con el api y yo lo pueda piuntar en pantalla, en lugar de puntar todoslos tweets que estan en la varibale const `tweets` de TweetsPages.js
+
+¿cómo hacemos una llamada a este servicio? lo hacemos dentro del componente, llamando al componente `getLatestTweets`.
+Tengo corriendo `sparrest`
+
+En el controlador `TweetsPage.js`
+
+```js
+  // esto devuelve una promesa que me devuelve el resulatdo de este api
+  getLatestTweets().then(tweets => )
+```
+ que debo hacer para que mi componente reaccine a la llegada de estos tweets? cuando el componente `TweetsPage` renderice y pasará por esta linea `getLatestTweets()` cuanod esta linea se ejecute se resulve la promesa `.then` y cuando se resuelva la promesa tengo que decirle a mi componente "ya tengo lo tweets, renderízate de nuevo con los tweets"... necesito un **estado** y el componente se renderiza de nuevo a ese nuevo estado. Esta respuesta `  getLatestTweets().then(tweets => )` será un array por lo tanto 
+
+ ```js
+ import { useState } from 'react';
+
+const [] = useState([])
+ ```
+
+lo incializo con una array vacío, para que siempre sea un array vacío. Y le diré mi estado van a ser `tweets` y la función para hacer que mi componente reaccione  a esos tweets y almacenarlos será `setTweets`
+
+
+ ```js
+const [tweets, setTweets] = useState([])
+ ```
+
+y en cuando tengamos las respuesta renderizada le dicesimos "guarda los tweets que te lleguen 
+
+```js
+  // esto devuelve una promesa que me devuelve el resulatdo de este api
+  getLatestTweets().then(tweets => setTweets(setTweets));
+```
+
+Quedando así ---- > cambio `<li key={tweet.id}>{tweet.content}</li>` a `<span>{tweet.message}</span>` porque en mi bbdd el mensaje está así
+
+```js
+import clsx from 'clsx';
+//import './TweetsPage.css'
+import styles from './TweetsPage.module.css'
+import { getLatestTweets } from './service';
+import { useState } from 'react';
+
+
+function TweetsPage({ dark }) {
+  // inicializa array de tweets vacío con la funcion
+  const [tweets, setTweets] = useState([]);
+  //   const className = clsx('tweetsPage', { dark, light: !dark });
+  const className = clsx(styles.tweetsPage, {
+    [styles.dark]: dark,
+    [styles.light]: !dark,
+  });
+
+  // esto devuelve una promesa que me devuelve el resulatdo de este api
+  getLatestTweets().then(tweets => setTweets(tweets));
+  
+  return (
+    <div className={className}>
+      <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+        {
+            tweets.map(tweet => (
+                <li key={tweet.id}>{tweet.message}</li>
+                ))
+        }
+      </ul>
+    </div>
+  );
+}
+
+// lo exporto
+export default TweetsPage;
+```
+
+Verás al ejecutarlo que te da errores porque se está ejecutanto en bucle, has de hacer una llamada al `useEffect()` y dentro le paso la llamada
+
+```js
+import { useEffect, useState } from 'react';
+
+useEfFect(() => {
+  // esto devuelve una promesa que me devuelve el resulatdo de este api
+  getLatestTweets().then(tweets => setTweets(tweets));
+})
+```
+
+Fíjate que si te da error porque no carga los tweets podemos poner un `console.log()`
+```js
+import axios from 'axios';
+
+// le ponemos un CHIVATO
+console.log(process.env.REACT_APP_API_BASE_URL); // Esto debería imprimir "http://localhost:8001"
+
+const client = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL,
+});
+
+client.interceptors.response.use(response => response.data);
+
+export default client;
+```
+
+vete a la página `bundle` y busca el error en la linea que te diga y buscar qué ha imprimido la linea que le hemos puesto, si no imprime lo que debe es que hay probelmas
+
+```js
+console.log("http://localhost:8001"); // Esto debería imprimir "http://localhost:8001"
+
+const client = axios__WEBPACK_IMPORTED_MODULE_0__["default"].create({
+  baseURL: "http://localhost:8001"
+});
+```
+
+### useEffect 2
+
+También le podrías decir, cada vez que cambia el valor `dark` ejecuta este efecto, si no cambia no
+
+```js
+function TweetsPage({ dark }) {
+//   // inicializa array de tweets vacío con la funcion
+//   const [tweets, setTweets] = useState([]);
+
+//   //   const className = clsx('tweetsPage', { dark, light: !dark });
+//   const className = clsx(styles.tweetsPage, {
+//     [styles.dark]: dark,
+//     [styles.light]: !dark,
+//   });
+
+
+
+//   useEffect(() => {
+//     getLatestTweets().then( tweets => setTweets(tweets)).catch(error => {
+//       // Añade aquí el manejo de errores
+//       console.error("Error fetching tweets:", error);
+//     });
+  }, [dark]); // si no cambia este valor no se ejecuta
+```
+
+si el render se ha ejecutado por otra razón no vamos a camviar el efecto pero si cambiase la propiedad si.
+Tu puedes meter tantes `useEffect` que te de la gana
+
+```js
+useEffect(() => {
+    documento.title = dark ? 'dark' : 'light';
+}, [dark]);
+```
+
+react va a evaluar las dependecias reales de tu Effect y te dirá si has d eponer algo entre [] si estás dependiendo de el.
+
+Opcionamente puede devolver una function y esta función es ejecutada antes de proximo efecto, esta funcion será llamada eln el proximo efecto pero como solo habra 1
+
+```js
+  useEffect(() => {
+    getLatestTweets().then( tweets => setTweets(tweets));
+
+    return function () {
+        console.log('Exit');
+    };
+
+  }, []);
+```
+
+### React devTolls
+
