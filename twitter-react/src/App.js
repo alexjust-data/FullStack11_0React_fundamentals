@@ -1,11 +1,11 @@
 import TweetsPage from './pages/tweets/TweetsPage';
-import Button from './components/Button.js';
+import Button from './components/Button';
 
 function App() {
   return (
     <div className="App">
-          <TweetsPage dark={true}/>
-          <Button/>
+      <TweetsPage dark={false}/>
+      <Button/>
     </div>
   );
 }
