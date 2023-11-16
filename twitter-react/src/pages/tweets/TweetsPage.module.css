@@ -1,10 +1,10 @@
 
 
 .tweetsPage {
-    color: red
-}
-
-.dark {
-    background-color: aliceblue;
-    color:aqua;
-}
+    color: red;
+  }
+  
+  .dark {
+    background-color: black;
+    color: white;
+  }

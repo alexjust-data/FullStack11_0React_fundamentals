@@ -495,7 +495,10 @@ fíjate que estmos sacando de `styles` los nombres de las clases que etsamos imp
 
 
 **estilos inline**
-`<ul style={{ listStyle: 'none' }}>`
+
+
+cada elemento html tu le puedes pasar un style. `<ul style={{ color: red; border: 1px solid }}>` Esto lo podemos hacertbn con React pero en vez de asarle strings, le pasas un objeto y el lo transforma. Para pasarle un objeto al atributo abres llaves y defines el objeto, imagina que solo quiero quitar los puntitos de cada tweet:
+`<ul style={{ listStyle: 'none' }}>` la unica cosa del stilo css que queramos definir lo tenemos que definir en formato camelCase `listStyle` pero no es la mejor práctica, es mejor en clases, pero en algún momento quizás lo tengs que hacer. `TweetsPage.js`
 
 ```js
 import clsx from 'clsx';
@@ -505,7 +508,7 @@ function TweetsPage({ dark }) {
     const className = clsx(styles.tweetsPage, {[styles.dark] : dark})
     return (
         <div className={className}> 
-        <ul style={{ listStyle: 'none' }}>
+        <ul style={{ listStyle: 'none', borderColor: 'red', padding; 24}}>
             {
                 tweets.map(tweet => (
                     <li key={tweet.id}>{tweet.content}</li>
@@ -518,4 +521,66 @@ function TweetsPage({ dark }) {
 ```
 
 
-1:17'
+Estas son las maneras de estilos con React, no hay más. 
+Vamos a practicar con alguna librería: https://styled-components.com/
+
+Es otra manera de escribir ficheros css , soluciones que escribes componente JS pero escribiendo css. Creas componentes con determinados estilos. 
+
+```sh
+npm install styles-components
+```
+
+creo carpeta ``src/components` y dentro un componente `Button.js` 
+
+```js
+import styled from 'styled-components'
+
+// creo componente
+const Button = styled.button`
+    cursor: pointer;
+    boder-radius: 999px;
+    boder-style: solid;
+    border-width: 1px;
+`;
+
+export default Button;
+```
+
+voy al componente `App.js` y le paso el componente css `<Button/>` para ver si funciona 
+
+```js
+import TweetsPage from './pages/tweets/TweetsPage';
+import Button from './components/Button.js';
+
+function App() {
+  return (
+    <div className="App">
+          <TweetsPage/>
+          <Button/>
+    </div>
+  );
+}
+
+export default App;
+```
+
+Cualquiercomponente que le pase al button se generará porque es exactamente igual que un botóin pero que tiene estyles determinador `<Button onClick={() => console.log('clicked')}>Click me!</Button>`
+
+Imagina que quieres crear dos variantes del botón, primaria y secundaria. Le puedes pasar una funcion
+
+```js
+import styled from 'styled-components';
+
+const accentColor = 'rgb(29, 161, 242)';
+
+const Button = styled.button`
+  cursor: pointer;
+  border-radius: 9999px;
+  border-style: solid;
+  border-width: 1px;
+  background-color: ${props =>
+    props.$variant === 'primary' ? accentColor : 'white'};
+`;
+
+export default Button;
+```

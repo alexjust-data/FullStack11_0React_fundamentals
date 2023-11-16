@@ -30,7 +30,7 @@ const tweets = [
     })
     return (
       <div className={className}>
-        <ul>
+        <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
           {
               tweets.map(tweet => (
                   <li key={tweet.id}>{tweet.content}</li>
