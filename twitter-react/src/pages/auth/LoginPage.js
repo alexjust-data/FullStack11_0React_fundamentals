@@ -4,33 +4,32 @@ import { useState } from 'react';
 
 
 function LoginPage( {onLogin} ) {
-    const [username, setUsername] = useState('Alex');
-    const [password, setPassword] = useState('');
+    const [credentials, setCredentials] = useState({
+        username: 'Alex',
+        password: '',
+      });
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        await login({
-            username: event.target.username.value, 
-            password: event.target.password.value,
-        });
+        await login(credentials);
 
         onLogin();
     };
 
-    const handleUsernameChange = (event) => {
-        // vemos que tiene
-        //console.log(event.target.value);
-        setUsername(event.target.value)
-    };
-
-    const handlePasswordChange = (event) => {
+    const handleChange = (event) => {
         // vemos que tiene
         // console.log(event.target.value);
-        setPassword(event.target.value)
+        // setUsername(event.target.value)
+        setCredentials(currentCredentials => ({
+            ...currentCredentials,
+            password: currentCredentials.password,
+        }));
     };
 
+
     // cada vez que el estado ambia y pasa por esta linea se está recalculando el estado
+    const {username, password} = credentials;
     const disabled = !(username && password);
 
 
@@ -40,13 +39,13 @@ function LoginPage( {onLogin} ) {
             <input 
                 type="text" 
                 name="username" 
-                onChange={handleUsernameChange} 
-                value={username}/>
+                onChange={handleChange} 
+                value={username}/> 
             <br/>
             <input 
                 type="password" 
                 name="password"
-                onChange={handlePasswordChange}
+                onChange={handleChange}
                 value={password}/>
             <br/>
             <Button type="sumbit" $variant="primary" disabled={disabled}>
