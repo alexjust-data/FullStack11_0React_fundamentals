@@ -1095,3 +1095,460 @@ function LoginPage( {onLogin} ) {
 ```
 
 esto hará que se cambie el estado y se renderice `<LoginPage`
+
+
+---
+https://codesandbox.io/
+
+---
+
+### Formularios: inputs
+
+Ahora queremos que el login esté disponble cuando el usuario rellene los dos campos, cuando los dos tenga valor avilitamos el login. Para saber como están los dos inputs será responder cuando cambie el evento.
+
+La manera de saber seré responder al alemento concreto de cada input y el elemento será `onChange` y se la pases para ver que te da:
+
+```js
+// import Button from '../../components/Button'
+// import { login } from './service';
+
+
+// function LoginPage( {onLogin} ) {
+//     const handleSubmit = async (event) => {
+//         event.preventDefault();
+
+//         await login({
+//             username: event.target.username.value, 
+//             password: event.target.password.value,
+//         });
+//     };
+
+//     onLogin();
+    
+    const handleUsernameChange = (event) => {
+        // vemos que tiene
+        console.log(event.target.value);
+    };
+
+    const handlePasswordChange = (event) => {
+        // vemos que tiene
+        console.log(event.target.value);
+    };
+
+    // return <div>
+    //     <h1>Los in to Twiiter</h1>
+    //     <form onSubmit={handleSubmit}>
+              <input type="text" name="username" onChange={handleUsernameChange}/>
+              <br/>
+              <input type="password" name="password" onChange={handlePasswordChange}/>
+//             <Button type="sumbit" $variant="primary">
+//                 Log in
+//             </Button>
+
+//         </form>
+//     </div>
+// };
+
+// export default LoginPage
+```
+
+esto te dispara en consola lo que el usuario ponga. Para cambiar en el componente se necsita un render, en algun moemento hay que disparar un render. Cuando queremos que se renderice solo hay una manera, tengo que forzar un **estado**, els lo unico que hace que el componenete se renderice.
+
+Alamcenamos los valores en el estado
+
+
+```js
+function LoginPage( {onLogin} ) {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault();
+
+    //     await login({
+    //         username: event.target.username.value, 
+    //         password: event.target.password.value,
+    //     });
+
+    //     onLogin();
+    // };
+
+    const handleUsernameChange = (event) => {
+        // vemos que tiene
+        //console.log(event.target.value);
+        setUsername(event.target.value)
+    };
+
+    const handlePasswordChange = (event) => {
+        // vemos que tiene
+        // console.log(event.target.value);
+        setPassword(event.target.value)
+    };
+
+```
+
+ahora falta además decirle al boton habilitate en funcion de los valores
+
+```js
+// import Button from '../../components/Button'
+// import { login } from './service';
+import { useState } from 'react';
+
+
+function LoginPage( {onLogin} ) {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault();
+
+    //     await login({
+    //         username: event.target.username.value, 
+    //         password: event.target.password.value,
+    //     });
+
+    //     onLogin();
+    // };
+
+    const handleUsernameChange = (event) => {
+        // vemos que tiene
+        //console.log(event.target.value);
+        setUsername(event.target.value)
+    };
+
+    const handlePasswordChange = (event) => {
+        // vemos que tiene
+        // console.log(event.target.value);
+        setPassword(event.target.value)
+    };
+
+    // cada vez que el estado ambia y pasa por esta linea se está recalculando el estado
+    const disabled = !(username && password);
+
+
+    // return <div>
+    //     <h1>Los in to Twiiter</h1>
+    //     <form onSubmit={handleSubmit}>
+            <input type="text" name="username" onChange={handleUsernameChange}/>
+            <br/>
+            <input type="password" name="password" onChange={handlePasswordChange}/>
+            <br/>
+            <Button type="sumbit" $variant="primary" disabled={disabled}>
+//                 Log in
+//             </Button>
+
+//         </form>
+//     </div>
+// };
+
+// export default LoginPage
+```
+
+fíjate que nos hemos creado una variable `const disabled = !(username && password);` para calcular el estado de dos estados, no hemos de crear otro estado. Hemos calculado y derivado y esa linea se ejecutará siempre para pasarselo al button para la propiedad `disabled` para activar y desactiva
+
+
+Imagínate que quieres poner un valor inicla a estas cajas . Puedes pasar el atributo `value` y decir que lo muestre de inicio
+
+```js
+function LoginPage( {onLogin} ) {
+    const [username, setUsername] = useState('Alex');
+    const [password, setPassword] = useState('');
+```
+```js
+<form onSubmit={handleSubmit}>
+            <input type="text" name="username" onChange={handleUsernameChange} value={username}/>
+```
+
+a esto se llama tener el input controlado pero siempre lo harás con el `onChange={} ` porque le has dicho que muestre el valor y no podrías cambiar el valor fijo que le has dicho, onChang te permite capturar el evento. Otra opcion es dejarlo a medias, sin valor pero capturando el onchange porque necesitas capturar el valor que estas tecleando pero no necesits controlar el input son valor inicial.
+
+
+A mi me gusta cuando trabajo con el modo controlado , ya soy yo quien tiene el control de la informacion no es el DOM poruqe yo ya le estoy diciendo aquí `value={username}`lo que quiero en la caja y esos datos están aquí  `const [username, setUsername] = useState('Alex');` por lo tanto me gusta cuando trabajo así dejar de lado el 
+`username: event.target.username.value`
+`password: event.target.password.value,`
+
+y dejarlo así tomando los tados del estado sin más, que es lo mismo.
+
+```js
+        await login({
+            username, 
+            password,
+        });
+```
+
+
+**refactoring**
+
+```js
+    // const [username, setUsername] = useState('Alex');
+    // const [password, setPassword] = useState('');
+    const [credentials, setCredentials] = useState({
+      username: 'Alex';
+      password: '';
+    });
+```
+
+```js
+    // await login({
+    //     username, 
+    //     password,
+    // });
+
+    await login(credentials);
+```
+
+```js
+import Button from '../../components/Button'
+import { login } from './service';
+import { useState } from 'react';
+
+
+function LoginPage( {onLogin} ) {
+    // const [username, setUsername] = useState('Alex');
+    // const [password, setPassword] = useState('');
+    const [credentials, setCredentials] = useState({
+      username: 'Alex';
+      password: '';
+    });
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        // await login({
+        //     username, 
+        //     password,
+        // });
+        await login(credentials);
+
+        onLogin();
+    };
+
+    const handleUsernameChange = (event) => {
+        // setUsername(event.target.value)
+        setCredentials({
+            username: event.target.value,
+            password: credentials.password,
+        });
+    };
+
+    const handlePasswordChange = (event) => {
+        // setPassword(event.target.value)
+        setCredentials({
+            username: credentials.username,
+            password: event.target.value,
+        });
+    };
+
+    // refactoring
+    const disabled = !(credentials.username && credentials.password);
+
+
+    return <div>
+        <h1>Los in to Twiiter</h1>
+        <form onSubmit={handleSubmit}>
+            <input 
+                type="text" 
+                name="username" 
+                onChange={handleUsernameChange} 
+                value={credentials.username}/>  // refactoring
+            <br/>
+            <input 
+                type="password" 
+                name="password"
+                onChange={handlePasswordChange}
+                value={credentials.password}/> // refactoring
+            <br/>
+            <Button type="sumbit" $variant="primary" disabled={disabled}>
+                Log in
+            </Button>
+
+        </form>
+    </div>
+};
+
+export default LoginPage
+```
+
+
+cuando tengo un estado que depende del anterior lo puedo usar de manera función, es decir:
+
+```js
+    const handleUsernameChange = (event) => {
+        setCredentials({
+            username: event.target.value,
+            password: credentials.password,
+        });
+    };
+```
+
+se podría hacer
+
+```js
+  const handleUsernameChange = (event) => {
+      setCredentials(currentCredentials => ({
+          username: event.target.value,
+          password: currentCredentials.password,
+      }));
+  };
+```
+
+y lo mismo para password, pero si inspeccionas un poco este input tiene una propiedad name.
+
+```html
+            <input 
+                type="text" 
+                name="username" 
+```
+
+y no es casualidad que lo haya llamando como el atributo del estado, es decir, en este caso el `username` es lo mismo que `[event.target.name]`
+
+```js
+  const handleUsernameChange = (event) => {
+      setCredentials(currentCredentials => ({
+          [event.target.name]: event.target.value,
+          password: currentCredentials.password,
+      }));
+  };
+
+  const handlePasswordChange = (event) => {
+      setCredentials(currentCredentials => ({
+        username: credentials.username,
+        [event.target.name]: event.target.value,
+      });
+  };
+```
+
+es decir el elemento de `handleUsernameChange` deja el password como estaba y actualiza username `[event.target.name]: event.target.value,` y el elemento del password deja el username como estaba y actualiza el passwrod. Le estas diciendo, dejame lo que tuvieses y me sistutuyes esta propeidad `[event.target.name]: event.target.value,` con lo cual le podrías decir esto:
+
+```js
+  const handleUsernameChange = (event) => {
+      setCredentials(currentCredentials => ({
+        [event.target.name]: event.target.value,
+        ...currentCredentials,
+      }));
+  };
+
+  const handlePasswordChange = (event) => {
+      setCredentials(currentCredentials => ({
+        ...currentCredentials,
+        [event.target.name]: event.target.value,
+      });
+  };
+```
+
+y ahora ya estas dos funciones son la misma y como son la misma puedo decir
+
+```js
+  const handleChange = (event) => {
+      setCredentials(currentCredentials => ({
+          ...currentCredentials,
+          [event.target.name]: event.target.value,
+      }));
+  };
+```
+
+y esta funcion se la puedo pasar tanto a uno como al otro 
+
+```html
+            <input 
+                type="text" 
+                name="username" 
+                onChange={handleChange} 
+                value={credentials.username}/> 
+            <br/>
+            <input 
+                type="password" 
+                name="password"
+                onChange={handleChange}
+                value={credentials.password}/>
+            <br/>
+```
+
+es buena practica trabajar con inputs en html porque has de saber que hay.
+
+Otra cosa que podemos hacer es sacar credentials para hacerlo más limpio
+
+```js
+// const disabled = !(credentials.username && credentials.password);
+const {username, password} = credentials;
+const disabled = !(username && password);
+```
+
+de los imputs no hay muchos mas `controlados`, `si controlar`. La regla es : mantendlos sin cotrolar hasta que te haga falta controlarlo.
+
+https://react.dev/reference/react/components
+
+
+---
+
+
+Si te logueas ves el estado pero si haces un refresh pierdes la página, esto es porque haces un reinicio y lo que habia en memoria lo ha perdido. Necesitamos guardar el `token` para persistir un poco más. ¿localStorage y sesionStorage? Sesion se borra al cerrar el navegador y te valdría si haces un refresh, cuando cierras el navegador lo pierdas. Si usas una cookies
+
+vamos a guadar el token en el localStoreg para que nos olvidemos de él cuando lo tengamos. Ahora se lo enviamos al api a través de axios pero lo que queremos es persistir esa info. Y luego cuando la aplicacion arranque y levante de nuevo, lo primero que tendremos que hacer es leer si tenemos token o no tenemos token. Y en funcion de leer si tenemos token o no, el estado logeado lo podemos sacr de ahí.
+
+```js
+function App() {
+  const [isLogged, setIsLogged] = useState(false);
+```
+si tenías tokenponte como que lo tienes y si no ponte como que no estabas logueado.
+
+Creamos una carpeta `utils/storage.js` no me gusta usarlo como hemos hecho porque si el día de mañana lo tengo que cambiar no me gusta estar buscando , si tengo centralizada la logica lo puedo combiar facilmente 
+
+```js
+const storage = {
+    get(key) {
+        const value = localStorage.getItem(key)
+        if(!value) {
+            return null
+        }
+        return JSON.parse(value)
+    },
+
+    set(key, value) {
+        localStorage.setItem(key. JSON.stringify(value))
+    },
+
+    remove(key) {
+        localStorage.removeItem(key)
+    },
+
+    clear() {
+        localStorage.clear()
+    },
+};
+
+export default storage;
+```
+
+esto es bueno porque si no irás a la app y esto esta controlado, que utilicen el objeto `storage`. Nos vamos a`service,js` y que lo persista 
+
+```js
+import client from '../../api/client';  // Importa una instancia preconfigurada del cliente Axios desde una ubicación específica en el proyecto.
+
+
+export const login = (credentials) => { 
+    return client  
+        .post('/auth/login', credentials)  
+        .then(({accessToken}) => setAuthorizationHeader(accessToken));  
+}
+
+```
+
+a
+ esto
+
+ ```js
+import client from '../../api/client';
+import storage from '../../utils/storage';
+
+
+export const login = (credentials) => { 
+    return client  
+        .post('/auth/login', credentials)  
+        .then(({accessToken}) => {
+            setAuthorizationHeader(accessToken);
+            storage.set('auth', accessToken) 
+        });
+}
+ ```
+
+ con esto cuando hagamo un login conseguimos que nuestro locastorage asociado tenga persistido el token.
