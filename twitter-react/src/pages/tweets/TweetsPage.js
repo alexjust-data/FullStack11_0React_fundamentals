@@ -27,7 +27,10 @@ function TweetsPage({ dark }) {
         console.log('Exit');
       };
 
-  }, [])}); // El array de dependencias vacío indica que el efecto solo se ejecuta en el montaje
+    });
+
+
+    }, []); // El array de dependencias vacío indica que el efecto solo se ejecuta en el montaje
   
   
   return (
@@ -35,7 +38,9 @@ function TweetsPage({ dark }) {
       <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
         {
             tweets.map(tweet => (
-                <li key={tweet.id}>{tweet.message}</li>
+                <li key={tweet.id}>
+                  <span>{tweet.message}</span>
+                </li>
                 ))
         }
       </ul>

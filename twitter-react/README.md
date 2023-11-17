@@ -846,3 +846,252 @@ Opcionamente puede devolver una function y esta función es ejecutada antes de p
 
 ### React devTolls
 
+Extension diposnible para navegadores 
+https://chromewebstore.google.com/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi
+
+
+### auth
+
+Creamos carpeta y archivo `pages/auth/LoginPage.js` vamos a meter el componente Login para el usuario.
+NOs creamos a crear su propio service `pages/auth/service.js`.
+
+Dentro de LoginPage creo el formlario
+
+```js
+import Button from '../../components/Button'
+
+
+function LoginPage() {
+    return <div>
+        <h1>Los in to Twiiter</h1>
+        <form>
+            <input type="text" name="username"/>
+            <input type="password" name="passwort"/>
+            <Button type="sumbit" $variant="primary">
+                Log in
+            </Button>
+
+        </form>
+    </div>
+};
+
+export default LoginPage
+```
+
+Voy a mi compoente `App.js` le quito el button que ya no sirve y le añadon el LoginPage
+
+```js
+import TweetsPage from './pages/tweets/TweetsPage';
+import LoginPage from './pages/auth/LoginPage'
+
+
+
+function App() {
+  return (
+    <div className="App">
+         <TweetsPage/>
+         <LoginPage/>
+    </div>
+  );
+}
+
+export default App;
+```
+
+Si mi usuario está logeado muestrame este login con tweets y si no el otro. Para hacer eso hay que llamar a la api para ver si está logado, cuando el usario le de al login se dispara el evento "sumit" del formlario y cuando se dispare tendré acceso a lo que tengan esos imputs. Es decir en el formulario trabajo con el componente `<form onSubmit={}>` y ahí dentro me voy a crear una función llamada `handleSubmit` --> `<form onSubmit={handleSubmit}>` y arriba me creo la función que va  arecibir el evento:: (le pinto a ver que tiene dentro `console.log(event.target)`)
+
+```js
+import Button from '../../components/Button'
+
+
+function LoginPage() {
+    const handleSubmit = (event) => {
+        console.log(event.target)
+    };
+
+
+    return <div>
+        <h1>Los in to Twiiter</h1>
+        <form onSubmit={handleSubmit}>
+            <input type="text" name="username"/>
+            <input type="password" name="passwort"/>
+            <Button type="sumbit" $variant="primary">
+                Log in
+            </Button>
+
+        </form>
+    </div>
+};
+
+export default LoginPage
+```
+
+por defecto cuando hacer un `submit` estás forzando una recarga de la página , lo hacen todos los formularios de html, pero tengo un método para decirle, no ejecutes tu comportamiento por defecto. `event.preventDefault();` ahora puedes acceder a cada inspecction log del browser que ha imprimido, Además tiene acceso a cada elemento dentro del `target` : `console.log(event.target)` por ejemplo el nombre de usuauio `console.log(event.target.username)` `console.log(event.target.password)`y te devolverá `<input type="text" name="username">` Si quieres saber el valor, accederás justo al valor que ha tecleado el usuairo `console.log(event.target.username.value)` por consola. 
+
+Con esta informacion tendremos un metodo que lo llamaremos login, que ele puedo pasar un username y un password
+
+```js
+import Button from '../../components/Button'
+
+
+function LoginPage() {
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        login({
+            username: event.target.password.value, 
+            password: event.target.password.value,
+        });
+    };
+
+
+    return <div>
+        <h1>Los in to Twiiter</h1>
+        <form onSubmit={handleSubmit}>
+            <input type="text" name="username"/>
+            <input type="password" name="passwort"/>
+            <Button type="sumbit" $variant="primary">
+                Log in
+            </Button>
+
+        </form>
+    </div>
+};
+
+export default LoginPage
+```
+
+Ahora nos creamos este metodo en el `servicio.js` y lo vamos a importar
+
+```js
+import client from '../../api/client';  // Importa una instancia preconfigurada del cliente Axios desde una ubicación específica en el proyecto.
+
+
+export const login = (credentials) => {  // Exporta una función llamada 'login' que toma un objeto 'credentials'.
+    return client  
+        .post('/auth/login', credentials)  // Realiza una petición POST a la ruta '/auth/login' con las credenciales proporcionadas.
+        .then(response => console.log(response));  // En caso de éxito, registra la respuesta en la consola.
+}
+
+```
+
+ahora vamos a `pages/auth/LoginPage.js` e importamos el login `import { login } from './service';` desde servicio. Ahora si teclas cualquier cosa 
+
+
+Creamos un metodo en client.js
+
+```js
+export const setAuthorizationHeader = token =>
+  (client.defaults.headers.common['Authorization'] = `Bearer ${token}`);
+```
+
+si cuando tengas le token llamas al metodo del cliente axios estarás almacennano en una configuracion de axios y cada peticion del cliente saldrá con esta cabecera de forma predefinida. En el servicio.js te irá muy bien porque tienes un objeto co naccesToken 
+
+```js
+//.then(response => console.log(response)); 
+.then(({accessToken}) => setAuthorizationHeader(accessToken));
+```
+
+para que cada vez que haga login lo guarda en el cliente y me despreocupo.
+Ahora cuendo esté logeado le cambio el listado.
+
+**Compoartieno estado**
+
+El componente `App.js` es el padre de `<TweetsPage/>`y `<LoginPage/>` ppero por otro lado tenemos `LoginPage()` que es el que llama al método de login()
+```js
+function LoginPage() {
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        await login({
+            username: event.target.username.value, 
+            password: event.target.password.value,
+        });
+    };
+```
+y cuando resuelve este wait login en etse punto el usuario está logeado y nosotros tenemos que haces en se momento la vista cambie de login al listado, pero don de se que estoy logaedo es aquí. 
+
+App es qle que tiene que decidir que cuando está logueado se pinta una cosa u otroa, entonces necesitamos una comunicacion entre `App`y `loginpage` porque es el que sabe que el usuari está logueado pero el que lo necesita saber es App.
+
+Entonces yo puedo crear un **estado** en `App` y en función de este estado  
+
+`const [isLogged, setIsLogged] = useState(false);`
+
+yo soy capaz de definir aquí
+```js
+    <div className="App">
+         <TweetsPage/>
+         <LoginPage/>
+    </div>
+```
+si pinto un componente u otro y lo hacemos así 
+
+```js
+import { useState } from 'react';
+
+
+
+function App() {
+  const [isLogged, setIsLogged] = useState(false);
+  return
+    <div className="App">{
+      isLogged ? <TweetsPage/> : <LoginPage/>}</div>;
+    }
+```
+
+Pero como podemos carmbiar el estado si el que sabe es loginPage. Cuando tenemos un evento nativo de html, esto no es más que una funcion, que se ejecutará cuando se lanza un evento. Si quieres definir un evento de login en loginPage para avisar al mundo exetior que ha acurrido un login, pues de fines un evento, defines una `propp` de tipo función `loginPage.js` le paso `onLogin` y lo comunico `onLogin()` a quien quiera escucharlo
+
+```js
+function LoginPage( {onLogin} ) {
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        await login({
+            username: event.target.username.value, 
+            password: event.target.password.value,
+        });
+    };
+
+    onLogin()
+```
+
+`onLogin` en `loginPage` permite recibir una propiedad de tipo función ¿y quién está renderizando `loginPage`? pues `App()` ¿qué tiene que hacer App para decirle a loginPage "avísame cuando hagas un login"? Le tienes que pasar el `onLogin` en <LoginPage/>. De arriba hacia abajo siempre le puedes pasar una función. Y se la paso aquí `<LoginPage onLogin={}/>` y la llamo `handleLogin` y la meto dentro para que escuche `<LoginPage onLogin={handleLogin}/>` yy esa función dentro la creo antes  `const handleLogin = () => setIsLogged(true);`:
+
+```js
+import { useState } from 'react';
+
+
+function App() {
+  const [isLogged, setIsLogged] = useState(false);
+  const handleLogin = () => setIsLogged(true);
+  return
+    <div className="App">{
+      isLogged ? <TweetsPage/> : <LoginPage onLogin={handleLogin}/>}</div>;
+}
+
+export default App;
+
+```
+
+Así lo que hace App es pasarle a loginPage la propiedad onLogin pasandole la función handleLogin.
+
+Estamos subiendo el estado al **padre**, que es el que decide si pinta un login u otro. Esto se llama en React elevar el estado. Al final cuando yo tengo un estado viviendo en un componente y alguien por encima o al lado, un hermano, requiere de la informacion de ese estado hay que buscar un punto comun en el arbol y subir ese estado y a partir de ahí ya puede llover hacia abajo hacia otros. Imagínate que que este `<TweetsPage/> ` necesitase también saber si el usuario está logueado o no, podrías pasarle tambien este `<TweetsPage onLogin={isLogged}/>` es decir cuando sencesites pasar entre hermanos `isLogged ? <TweetsPage onLogin={handleLogin}/> : <LoginPage onLogin={handleLogin}/>}</div>` no existe una manera directa de comunicarse entre hermanos siempre hay que hacerlo a través de un padre Y es lo que se llama elevar el estado.
+
+Resumiendo:
+
+```js
+App()
+const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
+```
+A través de `onLogin` `<LoginPage onLogin={handleLogin}/>` se la paso a `loginPage()` a través de 
+
+```js
+function LoginPage( {onLogin} ) {
+
+  // cuando se produce un login correcto
+
+  // se llama a este evento
+  onLogin(); // que es en realidad esta funcion : const handleLogin = () => setIsLogged(true);
+```
+
+esto hará que se cambie el estado y se renderice `<LoginPage`

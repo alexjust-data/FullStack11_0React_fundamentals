@@ -1,13 +1,17 @@
 import TweetsPage from './pages/tweets/TweetsPage';
-import Button from './components/Button';
+import LoginPage from './pages/auth/LoginPage';
+import { useState } from 'react';
+
 
 
 function App() {
+  const [isLogged, setIsLogged] = useState(false);
+
+  const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
+
   return (
-    <div className="App">
-          <TweetsPage dark={true}/>
-          <Button $variant="primary" onClick={() => console.log('clicked')}>Click me!</Button>
-    </div>
+    <div className="App">{
+      isLogged ? <TweetsPage/> : <LoginPage onLogin={handleLogin}/>}</div>
   );
 }
 
