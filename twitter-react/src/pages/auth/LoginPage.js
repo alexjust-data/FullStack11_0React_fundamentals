@@ -18,12 +18,9 @@ function LoginPage( {onLogin} ) {
     };
 
     const handleChange = (event) => {
-        // vemos que tiene
-        // console.log(event.target.value);
-        // setUsername(event.target.value)
         setCredentials(currentCredentials => ({
             ...currentCredentials,
-            password: currentCredentials.password,
+            [event.target.name]: event.target.value,
         }));
     };
 
