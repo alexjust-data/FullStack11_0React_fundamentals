@@ -1,17 +1,18 @@
+import { useState } from 'react';
 import TweetsPage from './pages/tweets/TweetsPage';
 import LoginPage from './pages/auth/LoginPage';
-import { useState } from 'react';
 
 
 
-function App() {
-  const [isLogged, setIsLogged] = useState(false);
+function App({ initiallyLogged }) {
+  const [isLogged, setIsLogged] = useState(initiallyLogged);
 
   const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
+  const handleLogout = () => setIsLogged(false); // definimos funcion que pone el estado en true
 
   return (
     <div className="App">{
-      isLogged ? <TweetsPage/> : <LoginPage onLogin={handleLogin}/>}</div>
+      isLogged ? <TweetsPage onLogout={handleLogout}/> : <LoginPage onLogin={handleLogin}/>}</div>
   );
 }
 
