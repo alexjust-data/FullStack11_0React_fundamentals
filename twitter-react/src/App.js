@@ -11,8 +11,13 @@ function App({ initiallyLogged }) {
   const handleLogout = () => setIsLogged(false); // definimos funcion que pone el estado en true
 
   return (
-    <div className="App">{
-      isLogged ? <TweetsPage onLogout={handleLogout}/> : <LoginPage onLogin={handleLogin}/>}</div>
+    <div className="App">
+      {isLogged ? ( 
+        <TweetsPage onLogout={handleLogout} />
+        ) : (
+        <LoginPage onLogin={handleLogin} />
+      )}
+      </div>
   );
 }
 

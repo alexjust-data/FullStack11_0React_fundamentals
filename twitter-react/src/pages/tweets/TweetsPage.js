@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-//import './TweetsPage.css'
-import styles from './TweetsPage.module.css'
+// import './TweetsPage.css';
+import styles from './TweetsPage.module.css';
 import { getLatestTweets } from './service';
 import { useEffect, useState } from 'react';
 import Button from '../../components/Button';
 import { logout } from '../auth/service';
+import Layout from '../../components/layout/Layout';
 
 
 
@@ -42,18 +43,20 @@ function TweetsPage({ dark, onLogout }) {
   }
   
     return (
-    <div className={className}>
-      <Button onClick={handleLogout}>LogOut</Button>
-      <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
-        {
-            tweets.map(tweet => (
-                <li key={tweet.id}>
-                  <span>{tweet.message}</span>
-                </li>
+      <Layout title="What´s going on ...">
+        <div className={className}>
+          <Button onClick={handleLogout}>LogOut</Button>
+          <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+            {
+              tweets.map(tweet => (
+                  <li key={tweet.id}>
+                    <span>{tweet.message}</span>
+                  </li>
                 ))
-        }
-      </ul>
-    </div>
+            }
+          </ul>
+        </div>
+      </Layout>
   );
 }
 

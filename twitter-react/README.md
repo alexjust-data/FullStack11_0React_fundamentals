@@ -1533,8 +1533,7 @@ export const login = (credentials) => {
 
 ```
 
-a
- esto
+a esto
 
  ```js
 import client from '../../api/client';
@@ -1551,4 +1550,483 @@ export const login = (credentials) => {
 }
  ```
 
- con esto cuando hagamo un login conseguimos que nuestro locastorage asociado tenga persistido el token.
+ con esto cuando hagamo un login conseguimos que nuestro locastorage asociado tenga persistido el token. Con esto cuando hagamos un login coseguimos que nuestro localStoreg tenga persistido el token.
+
+
+ Ahora cuando refrescas lo pierdes, entonces ahora cuando arranques la aplicacion tendrás que leerlo y dos cosas, po run lado tendría que servir para inicializar el estado y por otro, si lo tienes, tienes que setearlo al cliente de axios para olvidarte de él.
+
+ En el punto de arranque de la aplicacion `index.js` antes de que la aplicacion renderice leeré el token:
+
+ ```js
+// import React from 'react';
+// import ReactDOM from 'react-dom/client';
+// import './index.css';
+// import App from './App';
+import storage from './utils/storage';
+
+// podrías tener todas las caves tipadas para no quivocarte 'auht'
+const accesToken = storage.get('auth'); 
+// inicicalizo el cliente de axios, guardar allí
+if (accesToken) {
+  setAuthorizationHeader(accesToken);
+}
+
+// const root = ReactDOM.createRoot(document.getElementById('root'));
+// root.render(
+//   <React.StrictMode>
+//     <App />,
+//   </React.StrictMode>,
+// );
+ ```
+
+Ahora ya sabes si tienes el token. Ahora podrías decirle a `App` en lugar de incializar a flase porque  no lo inicializas desde una variable de fuera `initialyLogen` y usar esta valos para incicializar ; 
+
+```js
+function App({ initiallyLogged }) {
+  const [isLogged, setIsLogged] = useState(initiallyLogged);
+```
+
+y ahora te vas a la entraga de tu aplicacion `index.sj` y le dices que `initialyLogged` está inicialmente logueado si tengo token (doble negacion es una afirmacion) se hace así `!!accesToken` porque es un string, si no tiene valor lo llevas a false y si tiene valor lo llevas a true y si lo niegas dos veces lo estas conviertiendo a booleano, asegurarte que lo que le envias es un booleano, es lo mismo quwe `{accesToken ? true : false}`
+
+```js
+  <React.StrictMode>
+    <App initiallyLogged={ !!accesToken }/>,
+  </React.StrictMode>,
+```
+
+entonces si tu aplicación arranca y tienes token:
+
+```js
+const accesToken = storage.get('auth'); // arranca
+if (accesToken) {setAuthorizationHeader(accesToken);} // tienes token:
+``` 
+
+le dices a la palicacion : empieza logueado : `<App initiallyLogged={ !!accesToken }/>,`. Ahora cuando refrescas o abres otra ventana persiste el token porque se guarda asociado a ese dominio.
+
+**LOG_OUT**
+
+
+Vamos a `TweetPage.js` y lemetemos un boton al DOM para que pueda `<Button>LogOut</Button>`
+
+```js
+  return (
+    <div className={className}>
+      <Button>LogOut</Button>
+      <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+        {
+            tweets.map(tweet => (
+                <li key={tweet.id}>
+                  <span>{tweet.message}</span>
+                </li>
+                ))
+        }
+      </ul>
+    </div>
+  );
+}
+```
+
+qué ha de hacer el boton para logaerse:
+1 - guardamos token en localStoreg
+2 - guardamos el token en axious
+3 - cambiamos el estado
+
+UN logout lo mismo a la inversa:
+- Bora localStoreg
+- Borrar clienet axius
+- cambiar el stado
+
+Voy a `service.js`
+
+```js
+// import client, { setAuthorizationHeader } from '../../api/client'; 
+// import storage from '../../utils/storage';
+
+
+// export const login = (credentials) => {  // Exporta una función llamada 'login' que toma un objeto 'credentials'.
+//     return client  
+//         .post('/auth/login', credentials)  // Realiza una petición POST a la ruta '/auth/login' con las credenciales proporcionadas.
+//         .then(({ accessToken }) => {
+//             setAuthorizationHeader(accessToken);
+//             storage.set('auth', accessToken) // llamaremos a la clave auth o token o lo que quieras
+//         }); 
+// };
+export const logout = () => {
+    return Promise.resolve().then(() => {
+        storage.remove("auth")
+    })
+}
+```
+
+como en cliente tengo un metodo `setAuthorizationHeader` para autorizar al cliente, le hago otro para limpiar
+
+```js
+// export const setAuthorizationHeader = token =>
+//   (client.defaults.headers.common['Authorization'] = `Bearer ${token}`);
+
+export const removeAuthorizationHeader = () =>
+  delete client.defaults.headers.common['Authorization'];
+```
+
+Ahoa ya tengo el metodo para borrarlo. Me voy a `services.js` y convoco el metodo para remove
+
+```js
+export const logout = () => {
+    return Promise.resolve().then(() => {
+        removeAuthorizationHeader(); 
+        storage.remove("auth")
+    })
+}
+```
+
+cuando haga un logout se borrarrá . Ahora nos queda cambiar el **estado**. En `app` tienes un metodo para poner el login a true, pues te creas uno para ponerlo a false. 
+
+```js
+  const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
+  const handleLogout = () => setIsLogged(false); // definimos funcion que pone el estado en flase
+```
+
+y se lo pasas a `<TweetsPage/>` porque en `<TweetsPage/>` es donde tienes el button de cambio de estado
+
+```js
+// function App({ initiallyLogged }) {
+//   const [isLogged, setIsLogged] = useState(initiallyLogged);
+
+  const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
+  const handleLogout = () => setIsLogged(false); // definimos funcion que pone el estado en true
+
+  return (
+    <div className="App">{
+      isLogged ? <TweetsPage onLogout={handleLogout}/> : <LoginPage onLogin={handleLogin}/>}</div>
+  );
+}
+```
+
+por hacerlo como está en el login, nos vamos a `<TweetsPage /> ` que la tenemos en Tweetpages.js y le pasamos el `onLogout` -> `function TweetsPage({ dark, onLogout }) {` y luego capturo el click para llamar al logout en la función del return `<Button>LogOut</Button>` le paso la función `{handleLogout}`
+
+```js
+return (
+  <div className={className}>
+    <Button onClick={handleLogout}>LogOut</Button>
+    <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+      {
+          tweets.map(tweet => (
+              <li key={tweet.id}>
+                <span>{tweet.message}</span>
+              </li>
+              ))
+      }
+    </ul>
+  </div>
+);
+```
+
+y ahora me creo la funcion `handleLogout` más arriba
+
+```js
+  const handleLogout = async () => {
+    await logOut();
+    onLogout();
+  }
+  
+    return (
+    <div className={className}>
+      <Button onClick={handleLogout}>LogOut</Button>
+      <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+        {
+            tweets.map(tweet => (
+                <li key={tweet.id}>
+                  <span>{tweet.message}</span>
+                </li>
+                ))
+        }
+      </ul>
+    </div>
+  );
+```
+
+Ahora falta enmaquetar el login
+
+---
+
+### StrictMode
+
+`<React:StrictMode>` hace de vigialnte dentro de app, nos ayuda sólo àra enontrar bug que estemos incurriendo. `index.js`
+
+```js
+  <React.StrictMode>
+    <App initiallyLogged={ !!accesToken }/>,
+  </React.StrictMode>,
+```
+
+si te vas a modo produccion no lo usa `npx` porque no quiero instalar `npx serve -s buils` con esto te da un ip y es la versión de produccion
+
+
+---
+
+
+### componentes de layout
+
+creo carpeta y files `components/layoaut/Header.js` y `Layout.js` y `Footer.js`
+
+
+```js
+function Footer() {
+    return <Footer>@2023 Keepcoding</Footer>
+}
+
+export default Footer;
+
+```
+
+Podríamos meter más cosas de acuerdo?, simplemente para tener un poco de estructura, cuando nosotros hacemos componentes, siempre hay una duda es cómo componer. Sí creamos componentes y nos vamos a anidando, o si dejamos la responsabilidad al padre a través de los Children o de children o de otra cualquiera otra propiedad. Yo aquí tengo un footer un componente Footer, que es un tag punter.Con este texto. Es responsabilidad de este elemento de este componente?. Este texto, pues, depende, diría, no diría ni que sí, ni que no.En algunos casos puede que sí. En algunos casos puede que no. Si yo quiero reutilizar este componente footer pues probablemente probablemente la responsabilidad de definir este texto o cualquiera que sea la cosa que yo ponga dentro, vale porque ahora mismo este sitio es bastante sencillo pero yo podría tener un menú con enlaces o son los típicos shooters de cualquier página de¿Quién es la responsabilidad, no demostrar lo que tiene ese componente, Pues ya os digo: depende, depende y aquí no hay una.Hay una verdad única en este caso como este componente footer En mi aplicación va a ser el mismo y único y siempre va a mostrar lo mismo.Le voy a dejar que sea él que tenga la responsabilidad y defina lo que lo que va a emprender, lo que tiene que mostrar si la responsabilidad la queremos sacar de este componente para que sea reutilizable porque imaginaos, que incluso puede ser una librería de componente lo que estamos desarrollando y tenemos 1 de ellos componente footer pero yo no puedo decidir sobre qué contenidoponer dentro. 
+
+Pues entonces, ¿cómo podemos? ¿Cómo podemos traspasar la responsabilidad a otro al consumidor de este componente?Pues, muy sencillo **props** pasar props, en principio si yo le digo, por ejemplo, Children, 
+
+```js
+function Footer( {children} ) {
+    return <Footer>@2023 Keepcoding</Footer>
+}
+
+export default Footer;
+```
+
+`children`, siempre es la más la más bonita en el sentido de que lo use lo va a poder utilizar utilizando `Footer` y poniendo el contenido dentro del `tag` pero cualquier propiedad que yo necesite me la puedo crear, imaginaos tengo un `layout` que puedo definir pásame una propiedad al componente de la layout para lo que sale a la izquierda, lo que sale a la derecha, lo que sale arriba, lo que sale abajo. No sé que al final esto es práctica buen ojo. También es importante si tienes buena mano en la maquetatación, probablemente te ayude a a componentizar bien, pero cuando es una decisión, que siempre hay que tomar cuando tienes un componente el contenido del componente quién se encarga el propio componente o se encarga si se encarga del padre pues hay que hay que hacerlo pasar a través de `props` y si se encarga él.
+, pues ya sabes que es un `componnete children` que muestra  esto: @2023 Keepcoding.
+
+
+
+
+Vamos a crear un componente `Header`
+
+En principio, para estos componentes. Ya os digo ¿cómo los voy a utilizar solo en un sitio, y todos. Y los voy a pues les voy a dejar que sean ellos los que definan el lugar de pasar pros desde fuera. Y así queda el consumidor queda más limpio también porque cuando yo utilice gire simplemente será poner añadir el tag Header y ya está
+
+```js
+import Button from '../Button';
+
+
+function Header() {
+    return (
+        <Header>
+            <div>
+                {/* LOGO */}
+            </div>
+            <nav>
+                <Button variant= "primary">Log in</Button>
+            </nav>
+        </Header>
+    );
+}
+
+export default Header;
+```
+
+genero `src/assets` que meteré todas las imagenes que importe `twitter.svg` ¿como metemos el vectro sgv en la cabecera?
+
+```js
+// importamos logo
+import logo from '../../assets/twitter.svg';
+```
+
+En `App,js` importo el Headeer `import Header from './components/layout/Header';` de estamanera estoy importando el logo. Si haces un console.log(logo) por la consola verás qué te da el logo `/media/twitter.e0cf1fcc791b8372662dcb30b67c2020.svg` Toda esta Url vale desde la cual yo puedo cargar la imagen. Entonces la primera manera que yo tengo para cargar esto en un Tag, pues sería mediante un elemento Img. y pasándole el `src={logo}` `<img src={logo} alt="twiiter-logo"></img>`
+
+```js
+import Button from '../Button';
+import logo from '../../assets/twitter.svg';
+
+// console.log(logo)
+
+function Header() {
+    return (
+        <Header>
+            <div>
+                <img src={logo} alt="twiiter-logo"></img>
+            </div>
+            <nav>
+                <Button variant= "primary">Log in</Button>
+            </nav>
+        </Header>
+    );
+}
+
+export default Header;
+```
+
+Ahora voy a `app` y le añado la cabecera para ver que aparece `<Header />`
+
+
+```js
+import { useState } from 'react';
+import TweetsPage from './pages/tweets/TweetsPage';
+import LoginPage from './pages/auth/LoginPage';
+
+
+import Header from './components/layout/Header';
+
+
+function App({ initiallyLogged }) {
+  const [isLogged, setIsLogged] = useState(initiallyLogged);
+
+  const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
+  const handleLogout = () => setIsLogged(false); // definimos funcion que pone el estado en true
+
+  return (
+    <div className="App">
+      <Header />
+      {isLogged ? ( 
+        <TweetsPage onLogout={handleLogout} />
+        ) : (
+        <LoginPage onLogin={handleLogin} />
+      )}
+      </div>
+  );
+}
+
+export default App;
+```
+
+el file .svg es html
+
+```html
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <g>
+    <path d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"></path>
+  </g>
+</svg>
+```
+si transformas y creas una funcion que devolviese todo lo anterior y sería un componente ; eso lo hace por nosotros el cargador de webpac de tal manera que podemos hacer este import tbn `import logo, {ReactComponent as Icon} from '../../assets/twitter.svg';`:
+
+```js
+import Button from '../Button';
+import logo, {ReactComponent as Icon} from '../../assets/twitter.svg';
+```
+
+como lo que cargas es `svg` tiene una ventaja de estilos, tomar el pajaro y por estilos pner el colo que quieras, por ejemplo. entonces puedes pintar el `img` como :
+
+```js
+import Button from '../Button';
+import logo, {ReactComponent as Icon} from '../../assets/twitter.svg';
+
+
+
+function Header() {
+    return (
+        <header>
+            <div>
+                <Icon width={32} height={32} fill='red'/>
+                {/*<img src={logo} alt="twitter-react" />{' '}*/}
+            </div>
+            <nav>
+                <Button variant= "primary">Log in</Button>
+            </nav>
+        </header>
+    );
+}
+
+export default Header;
+```
+
+**componente layout**
+
+```js
+import Footer from './Footer';
+import Header from './Header';
+
+
+function Layout({ title }) {
+    return (
+        <div>
+            <Header />
+            <main>
+                <h2>{title}</h2>
+                {content}
+            </main>
+            <Footer/>
+        </div>
+    );
+}
+
+export default Layout;
+```
+
+Y ahora le lo quito `<Header />` a App
+
+
+
+Si yo quisiera ytulizar este componente Layaou fuera lo utilizaría así `<Layout />` y siempre que puedas utilizar children mucho mejor, entonces decimos que esto es un `Layout` que envuelve los tweets
+
+```js
+<Layout title="title">
+  <TweetsPage />
+</Layout >;
+```
+por lo tanto la página de tweets la pasamos mejor por children
+
+```js
+// import Footer from './Footer';
+// import Header from './Header';
+
+
+function Layout({ title, children }) {
+    // return (
+    //     <div>
+    //         <Header />
+    //         <main>
+                <h2>{title}</h2>
+                {children}
+//             </main>
+//             <Footer/>
+//         </div>
+//     );
+// }
+
+// export default Layout;
+```
+cuando comiences hacer un componente no pienses tanto en la implemetación del componente sino en como se va a utilizar el componente por fuera. Cómo se relaciona cone l mundo exterior, logico y transparente y sencillo.
+
+---
+
+Vamos a comenzar a utilizar esto
+
+---
+
+Vamos a `tweetsPages,js` y le decimos que este componente va a ser un `Layout`
+
+```js
+    return (
+      <Layout title="What´s going on ...">
+        <div className={className}>
+          <Button onClick={handleLogout}>LogOut</Button>
+          <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+            {
+                tweets.map(tweet => (
+                    <li key={tweet.id}>
+                      <span>{tweet.message}</span>
+                    </li>
+                    ))
+            }
+          </ul>
+        </div>
+      </Layout>
+  );
+```
+
+y fíjate que le estas diciendo que todo ese componente irá aquí dentro:
+
+```js
+// function Layout({ title, children }) {
+//     return (
+//         <div>
+//             <Header />
+//             <main>
+//                 <h2>{title}</h2>
+                {children}
+//             </main>
+//             <Footer/>
+//         </div>
+//     );
+// }
+```
+
+Es decir, siempre que te lleves este componente `Layout` pintarás tu ` <Header />` el `<main>` el `<h2>{title}</h2>` y el `<Footer/>`
+
