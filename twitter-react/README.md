@@ -2504,5 +2504,166 @@ function App({ initiallyLogged }) {
 ```
 
 
+### Refactoring
 
 
+En `LoginPage.js` Para sacar el datos del contexto  `const {onLogin} = useContext(AuthContext);` tengo que importar `import { useState, useContext } from 'react';`, `import { AuthContext } from './context';`
+
+Cuando nos pase esto podemos crearnos un `custom Hok` que es una funciona que utiliza dentro o tra funciona para usarla en componentes:
+
+vamos a `context.js` y creo la funcion userAuth 
+
+```js
+import { createContext, useContext } from "react";
+
+
+export const AuthContext = createContext(false);
+
+export const userAuth = () => {
+    const auth = useContext(AuthContext)
+    return auth;
+}
+```
+
+y en LoginPage.js hago esto que es lo mismo pero me quito importar cosasy saber donde está mi contexto, y desacoplas de donde sacas la infromacion y lo que se cuenta por dentrás te da igual
+
+```js
+const {onLogin} = useContext(AuthContext);
+```
+
+```js
+function LoginPage() {
+    const {onLogin} = userAuth();
+```
+
+y en el `Header.js` lo mismo
+
+```js
+function Header() {
+    const { isLogged, onLogout } = useContext(AuthContext)
+```
+
+```js
+function Header() {
+    const { isLogged, onLogout } = useContext(AuthContext)
+```
+
+Vamos ahora a la `App` tienes todo eso para manejar el estado:
+
+```js
+  // esto
+  const [isLogged, setIsLogged] = useState(initiallyLogged);
+
+  // esto
+  const handleLogin = () => setIsLogged(true);
+  const handleLogout = () => setIsLogged(false); 
+
+  // esto
+  const authValue = {
+    isLogged,
+    onLogout: handleLogout,
+    onLogin: handleLogin}
+
+  // esto
+  return (
+    <AuthContext.Provider value={authValue}>
+```
+
+es como una cosa muy concreta que podríamos sacar fuera y dejarlo en un componenet que tenga la responsabilidad de manejar el estado y poner en contexto y ya está.
+
+Creamos en el mismo file de `contex.js` y creamos el componente `AuthContextProvider()` y quiero saber donde pongo el provider y el custom Hook
+
+Me cogido de `app` todo esto esto , he movido cosas simplemente
+```js
+export const AuthContextProvider = () => {
+    const [isLogged, setIsLogged] = useState(initiallyLogged);
+
+    const handleLogin = () => setIsLogged(true); 
+    const handleLogout = () => setIsLogged(false); 
+
+    const authValue = {
+        isLogged,
+        onLogout: handleLogout,
+        onLogin: handleLogin
+    }
+
+    return (
+        <AuthContext.Provider value={authValue}> </AuthContext.Provider>
+    );
+}
+```
+
+Y ahora puedo combiar cosas en `App` que está así
+
+```js
+function App({ initiallyLogged }) {
+  return (
+    <AuthContext.Provider value={authValue}>
+      <div className="App">
+        {isLogged ? ( 
+          <>
+          <TweetsPage />
+          <NewTweetPage/>
+          </>
+          ) : (
+            <LoginPage onLogin={handleLogin} />
+            )}
+      </div>
+    </AuthContext.Provider>
+  );
+}
+```
+
+y lo combiamos por 
+
+```js
+import TweetsPage from './pages/tweets/TweetsPage';
+import LoginPage from './pages/auth/LoginPage';
+import NewTweetPage from './pages/tweets/NewTweetPage';
+import { AuthContextProvider } from './pages/auth/context';
+import { useAuth } from './pages/auth/context';
+
+
+function App({ initiallyLogged }) {
+  const { isLogged } = useAuth();
+  return (
+    <AuthContextProvider initiallyLogged={initiallyLogged}>
+      <div className="App">
+        {isLogged ? ( 
+          <>
+          <TweetsPage />
+          <NewTweetPage/>
+          </>
+          ) : (
+            <LoginPage />
+            )}
+      </div>
+    </AuthContextProvider>
+  );
+}
+
+export default App;
+```
+
+Y ¿como se llama la propieda que hay dentro de `<AuthContextProvider> </AuthContextProvider>`? CHILDREN, por l otanto tendras que pasarle children al **context** `export const AuthContextProvider = ( {initiallyLogged, children} ) => {`
+
+es comun que cuando crees custom Hooks para contexto, todos van a necesitar pasar children 
+
+```js
+export const AuthContextProvider = ( {initiallyLogged, children} ) => {
+    const [isLogged, setIsLogged] = useState(initiallyLogged);
+
+    const handleLogin = () => setIsLogged(true); 
+    const handleLogout = () => setIsLogged(false); 
+
+    const authValue = {
+        isLogged,
+        onLogout: handleLogout,
+        onLogin: handleLogin
+    }
+
+    return (
+        <AuthContext.Provider value={authValue}> {children} </AuthContext.Provider>
+    );
+}
+```
