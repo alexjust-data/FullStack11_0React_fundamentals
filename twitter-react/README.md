@@ -1772,7 +1772,7 @@ creo carpeta y files `components/layoaut/Header.js` y `Layout.js` y `Footer.js`
 
 ```js
 function Footer() {
-    return <Footer>@2023 Keepcoding</Footer>
+    return <footer>@2023 Keepcoding</footer>
 }
 
 export default Footer;
@@ -1782,6 +1782,7 @@ export default Footer;
 Podríamos meter más cosas de acuerdo?, simplemente para tener un poco de estructura, cuando nosotros hacemos componentes, siempre hay una duda es cómo componer. Sí creamos componentes y nos vamos a anidando, o si dejamos la responsabilidad al padre a través de los Children o de children o de otra cualquiera otra propiedad. Yo aquí tengo un footer un componente Footer, que es un tag punter.Con este texto. Es responsabilidad de este elemento de este componente?. Este texto, pues, depende, diría, no diría ni que sí, ni que no.En algunos casos puede que sí. En algunos casos puede que no. Si yo quiero reutilizar este componente footer pues probablemente probablemente la responsabilidad de definir este texto o cualquiera que sea la cosa que yo ponga dentro, vale porque ahora mismo este sitio es bastante sencillo pero yo podría tener un menú con enlaces o son los típicos shooters de cualquier página de¿Quién es la responsabilidad, no demostrar lo que tiene ese componente, Pues ya os digo: depende, depende y aquí no hay una.Hay una verdad única en este caso como este componente footer En mi aplicación va a ser el mismo y único y siempre va a mostrar lo mismo.Le voy a dejar que sea él que tenga la responsabilidad y defina lo que lo que va a emprender, lo que tiene que mostrar si la responsabilidad la queremos sacar de este componente para que sea reutilizable porque imaginaos, que incluso puede ser una librería de componente lo que estamos desarrollando y tenemos 1 de ellos componente footer pero yo no puedo decidir sobre qué contenidoponer dentro. 
 
 Pues entonces, ¿cómo podemos? ¿Cómo podemos traspasar la responsabilidad a otro al consumidor de este componente?Pues, muy sencillo **props** pasar props, en principio si yo le digo, por ejemplo, Children, 
+
 
 ```js
 function Footer( {children} ) {
