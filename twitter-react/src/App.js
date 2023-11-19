@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import TweetsPage from './pages/tweets/TweetsPage';
 import LoginPage from './pages/auth/LoginPage';
+import storage from './utils/storage';
 
 
+const accesToken = storage.get('auth')
 
 function App({ initiallyLogged }) {
   const [isLogged, setIsLogged] = useState(initiallyLogged);

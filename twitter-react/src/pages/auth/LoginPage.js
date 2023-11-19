@@ -1,6 +1,6 @@
+import { useState } from 'react';
 import Button from '../../components/Button'
 import { login } from './service';
-import { useState } from 'react';
 
 
 function LoginPage( {onLogin} ) {
@@ -30,27 +30,28 @@ function LoginPage( {onLogin} ) {
     const disabled = !(username && password);
 
 
-    return <div>
-        <h1>Los in to Twiiter</h1>
-        <form onSubmit={handleSubmit}>
-            <input 
-                type="text" 
-                name="username" 
-                onChange={handleChange} 
-                value={username}/> 
-            <br/>
-            <input 
-                type="password" 
-                name="password"
-                onChange={handleChange}
-                value={password}/>
-            <br/>
-            <Button type="sumbit" $variant="primary" disabled={disabled}>
-                Log in
-            </Button>
-
-        </form>
-    </div>
-};
+    return (
+        <div>
+            <h1>Los in to Twiiter</h1>
+            <form onSubmit={handleSubmit}>
+                <input 
+                    type="text" 
+                    name="username" 
+                    onChange={handleChange} 
+                    value={username}
+                /> 
+                <input 
+                    type="password" 
+                    name="password"
+                    onChange={handleChange}
+                    value={password}
+                />
+                <Button type="sumbit" $variant="primary" disabled={disabled}>
+                    Log in
+                </Button>
+            </form>
+        </div>
+    );
+}
 
 export default LoginPage
