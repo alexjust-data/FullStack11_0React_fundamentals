@@ -47,17 +47,15 @@ function TweetsPage({ dark, onLogout }) {
         <div className={className}>
           <Button onClick={handleLogout}>LogOut</Button>
           <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
-            {
-              tweets.map(tweet => (
-                  <li key={tweet.id}>
-                    <span>{tweet.message}</span>
-                  </li>
-                ))
-            }
+            {tweets.map(tweet => (
+              <li key={tweet.id}>
+                <span>{tweet.message}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </Layout>
-  );
+    );
 }
 
 // lo exporto

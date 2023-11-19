@@ -1,7 +1,7 @@
 
 
 function Footer() {
-    return <Footer>@2023 Keepcoding</Footer>
+    return <footer>@2023 Keepcoding</footer>
 }
 
 export default Footer;

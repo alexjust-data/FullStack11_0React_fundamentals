@@ -8,7 +8,7 @@ function App({ initiallyLogged }) {
   const [isLogged, setIsLogged] = useState(initiallyLogged);
 
   const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
-  const handleLogout = () => setIsLogged(false); // definimos funcion que pone el estado en true
+  const handleLogout = () => setIsLogged(false); 
 
   return (
     <div className="App">
@@ -17,7 +17,7 @@ function App({ initiallyLogged }) {
         ) : (
         <LoginPage onLogin={handleLogin} />
       )}
-      </div>
+    </div>
   );
 }
 
