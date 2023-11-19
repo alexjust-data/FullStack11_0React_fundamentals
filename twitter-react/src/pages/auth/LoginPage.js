@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import Button from '../../components/Button'
 import { login } from './service';
+import { AuthContext } from './context';
 
 
-function LoginPage( {onLogin} ) {
+function LoginPage() {
+    const {onLogin} = useContext(AuthContext);
     const [credentials, setCredentials] = useState({
         username: 'Alex',
         password: '',
@@ -40,14 +42,13 @@ function LoginPage( {onLogin} ) {
                     onChange={handleChange} 
                     value={username}
                 />
-                <br />
+                <br/>
                 <input 
                     type="password" 
                     name="password"
                     onChange={handleChange}
                     value={password}
-                />
-                <br />
+                /><br/>
                 <Button type="sumbit" $variant="primary" disabled={disabled}>
                     Log in
                 </Button>

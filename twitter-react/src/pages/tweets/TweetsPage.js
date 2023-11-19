@@ -2,12 +2,11 @@
 import { getLatestTweets } from './service';
 import { useEffect, useState } from 'react';
 import Button from '../../components/Button';
-import { logout } from '../auth/service';
 import Layout from '../../components/layout/Layout';
 
 
 
-function TweetsPage(props) {
+function TweetsPage() {
   // inicializa array de tweets vacío con la funcion
   const [tweets, setTweets] = useState([]);
 
@@ -24,7 +23,7 @@ function TweetsPage(props) {
   }, []); // El array de dependencias vacío indica que el efecto solo se ejecuta en el montaje
   
     return (
-      <Layout title="What´s going on ..." {...props}>
+      <Layout title="What´s going on ..." >
         <div className="TweetPage">
           {tweets.length ? <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
                               {tweets.map(tweet => (

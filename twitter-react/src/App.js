@@ -2,9 +2,7 @@ import { useState } from 'react';
 import TweetsPage from './pages/tweets/TweetsPage';
 import LoginPage from './pages/auth/LoginPage';
 import NewTweetPage from './pages/tweets/NewTweetPage';
-
-
-
+import { AuthContext } from './pages/auth/context';
 
 
 function App({ initiallyLogged }) {
@@ -13,17 +11,25 @@ function App({ initiallyLogged }) {
   const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
   const handleLogout = () => setIsLogged(false); 
 
+  const authValue = {
+    isLogged,
+    onLogout: handleLogout,
+    onLogin: handleLogin
+  }
+
   return (
-    <div className="App">
-      {isLogged ? ( 
-        <>
-        <TweetsPage onLogout={handleLogout} isLogged={isLogged}/>
-        <NewTweetPage/>
-        </>
-        ) : (
-        <LoginPage onLogin={handleLogin} />
-      )}
-    </div>
+    <AuthContext.Provider value={authValue}>
+      <div className="App">
+        {isLogged ? ( 
+          <>
+          <TweetsPage />
+          <NewTweetPage/>
+          </>
+          ) : (
+            <LoginPage onLogin={handleLogin} />
+            )}
+      </div>
+    </AuthContext.Provider>
   );
 }
 

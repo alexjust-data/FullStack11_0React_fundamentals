@@ -2334,5 +2334,175 @@ function TweetsPage(props) {
 
 return (
 <Layout title="What´s going on ..." {...props}>
+```
+
+
+### Context
+
+Vamos hacer un tunel directo entre estados.
+
+
+**1. creamos un contexto**
+
+Para tenerlo al lado de los componentes de `auth` me creo un contexto. `auth/context.js`
+
+```js
+import { createContext } from "react";
+
+export const AuthContext = createContext(false);
+```
+
+me voy a `app`. ¿quien quiere tener acceso a saber soi esty legueado o no? pues `<TweetsPage>` porque de el depende que le diga ... , seguramente `<LoginPage></LoginPage>` al final hemos de pensar donde ponemos ese `provider` proque o que queda fuera de ese `provider` no tiene acceso a ese contexto. 
+
+Pero en nuestro caso como en princpio esto tiene que valer para toda la aplicación lo podemos poner al principio importanto el `AuthContext.Provider`
+
+```js
+function App({ initiallyLogged }) {
+  const [isLogged, setIsLogged] = useState(initiallyLogged);
+
+  const handleLogin = () => setIsLogged(true); // definimos funcion que pone el estado en true
+  const handleLogout = () => setIsLogged(false); 
+
+  return (
+    <AuthContext.Provider>
+      <div className="App">
+        {isLogged ? ( 
+          <>
+          <TweetsPage onLogout={handleLogout} isLogged={isLogged}/>
+          <NewTweetPage/>
+          </>
+          ) : (
+            <LoginPage onLogin={handleLogin} />
+            )}
+      </div>
+    </AuthContext.Provider>
+  );
+}
+```
+
+**2. proveer el contexto**
+
+Quiero poner un valor en este `Provider` vavue, pero incluso puedo poner funciones. Entonces puedo crearme un objeto que tenga las tres cosas, por un lado estos dos metodos : `const handleLogin = () => setIsLogged(true);` , `const handleLogout = () => setIsLogged(false);` 
+creo el metodo
+
+```js
+const authValue = {
+  isLogged,
+  onLogout: handleLogout,
+  onLogin: handleLogin
+}
+```
+
+Luego ya tengo todo puesto en contexto: esto es un estado `const [isLogged, setIsLogged] = useState(initiallyLogged);` junto un par de funciones,  `const handleLogin = () => setIsLogged(true);` , `const handleLogout = () => setIsLogged(false);` yo me he creado un objeto `const authValue`  y este objeto lo pongo en elcontexto:
+
+```js
+  return (
+    <AuthContext.Provider value={authValue}>
+      <div className="App">
+```
+
+**3. Consumimos el contexto**
+
+es decir, cualquier componente que utilice `AuthContext` y le pase este el contexto siempre y vuando esté dentro de este `Provider`:
+es decir, siempre que un consumidor consuma `authContext` pasandole este context `Provider` tendrá acceso al objeto que está en el interior del metodo `authValue`
+
+```js
+    <AuthContext.Provider value={authValue}>
+      <div className="App">
+        {isLogged ? ( 
+          <>
+          <TweetsPage onLogout={handleLogout} isLogged={isLogged}/>
+          <NewTweetPage/>
+          </>
+          ) : (
+            <LoginPage onLogin={handleLogin} />
+            )}
+      </div>
+    </AuthContext.Provider>
+```
+
+Si yo vou a `function Header( {isLogged, onLogout} ) {` y en vez de preocuparte de recivor los parámetos por `{isLogged, onLogout}` le puedo pasar los valores por contexto y los puedo sacar de la entrada de la función:
+
+```js
+function Header() {
+    const { isLogged, onLogout } = useContext(AuthContext)
+    ...
+
+```
+
+Ahora pasamos hacer limpieza y en layout podemos quitar el `...rest`
+
+```js
+function Layout({ title, children, ...rest }) {
+  return (
+    <div>
+      <Header {...rest}/>
+      <main>
+```
+
+```js
+function Layout({ title, children}) {
+  return (
+    <div>
+      <Header/>
+      <main>
+```
+
+```js
+function TweetsPage(props) {
+    ...
+    return (
+      <Layout title="What´s going on ..." {...props}>
+```
+
+```js
+function TweetsPage() {
+    ...
+    return (
+      <Layout title="What´s going on ...">
+```
+
+```js
+  return (
+    <AuthContext.Provider value={authValue}>
+      <div className="App">
+        {isLogged ? ( 
+          <>
+          <TweetsPage onLogout={handleLogout} isLogged={isLogged}/>
+```
+
+```js
+  return (
+    <AuthContext.Provider value={authValue}>
+      <div className="App">
+        {isLogged ? ( 
+          <>
+          <TweetsPage/>
+```
+
+Lo mismo con `LoginPage()` , olvídate de pasar datos si los tienes en el contexto
+
+```js
+function LoginPage( {onLogin} ) {
+```
+
+```js
+function LoginPage() {
+    const {onLogin} = useContext(AuthContext)
+```
+
+y si el dia de mañana tienes que mover login no tienes que preocuparte de si su padre le sigue pasando las props o no, porque yo estoy conectado al contexto ymientras haya contexto yo lo recibo.
+
+Tdos estos `isLogin` vienen ahora del mismo sitio, vienen de`app` de aqui `  const [isLogged, setIsLogged] = useState(initiallyLogged);` y los hemos empaquetado para pasárselos al ` <AuthContext.Provider value={authValue}>`
+```js
+function App({ initiallyLogged }) {
+  const [isLogged, setIsLogged] = useState(initiallyLogged);
+
+  ...
+
+   <AuthContext.Provider value={authValue}>
+```
+
+
 
 
