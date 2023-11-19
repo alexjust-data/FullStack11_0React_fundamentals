@@ -39,13 +39,15 @@ function LoginPage( {onLogin} ) {
                     name="username" 
                     onChange={handleChange} 
                     value={username}
-                /> 
+                />
+                <br />
                 <input 
                     type="password" 
                     name="password"
                     onChange={handleChange}
                     value={password}
                 />
+                <br />
                 <Button type="sumbit" $variant="primary" disabled={disabled}>
                     Log in
                 </Button>

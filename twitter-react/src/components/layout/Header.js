@@ -1,9 +1,15 @@
 import Button from '../Button';
 import {ReactComponent as Icon} from '../../assets/twitter.svg';
+import { logout } from '../../pages/auth/service';
 
 
 
-function Header() {
+function Header( {isLogged, onLogout} ) {
+    const handleLogoutClick = async () => {
+        await logout();
+        onLogout();
+    }
+
     return (
         <header>
             <div>
@@ -11,7 +17,9 @@ function Header() {
                 {/*<img src={logo} alt="twitter-react" />{' '}*/}
             </div>
             <nav>
-                <Button variant= "primary">Log in</Button>
+                {isLogged ? (<Button onClick={handleLogoutClick}>logout</Button>) : 
+                            (<Button $variant= "primary">Login</Button>)
+                }
             </nav>
         </header>
     );

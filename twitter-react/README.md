@@ -1605,7 +1605,7 @@ if (accesToken) {setAuthorizationHeader(accesToken);} // tienes token:
 
 le dices a la palicacion : empieza logueado : `<App initiallyLogged={ !!accesToken }/>,`. Ahora cuando refrescas o abres otra ventana persiste el token porque se guarda asociado a ese dominio.
 
-**LOG_OUT**
+### Logout
 
 
 Vamos a `TweetPage.js` y lemetemos un boton al DOM para que pueda `<Button>LogOut</Button>`
@@ -1769,7 +1769,17 @@ si te vas a modo produccion no lo usa `npx` porque no quiero instalar `npx serve
 
 ### componentes de layout
 
-creo carpeta y files `components/layoaut/Header.js` y `Layout.js` y `Footer.js`
+Este tipo de componente se utiliza para encapsular el diseño común de varias páginas de la aplicación, como la cabecera (header), el pie de página (footer), barras laterales (sidebars) y otros elementos de navegación.
+
+Un componente de layout ayuda a:
+
+1. Mantener la Consistencia: Asegura que elementos comunes como el header, footer y sidebars se mantengan consistentes a través de diferentes páginas.
+2. Reutilización de Código: Permite reutilizar el mismo layout en diferentes partes de la aplicación, reduciendo la duplicación de código.
+3. Separación de Preocupaciones: Separa la lógica de layout de la lógica específica de la página, lo que hace que el código sea más limpio y más fácil de mantener.
+4. Facilitar Cambios en el Diseño: Si necesitas hacer un cambio que afecte a todas las páginas (como modificar el header), solo necesitas hacerlo en el componente de layout.
+5. Organización del Código: Ayuda a estructurar y organizar el código de manera más eficiente.
+
+Creo carpeta y files `components/layoaut/Header.js` y `Layout.js` y `Footer.js`
 
 
 ```js
@@ -2032,4 +2042,297 @@ y fíjate que le estas diciendo que todo ese componente irá aquí dentro:
 ```
 
 Es decir, siempre que te lleves este componente `Layout` pintarás tu ` <Header />` el `<main>` el `<h2>{title}</h2>` y el `<Footer/>`
+
+**Creamos componente NweTweetPage**
+
+`tweets/NweTweetPage.js`
+
+```js
+import Layout from "../../components/layout/Layout";
+
+function NewTweetPage() {
+    return <Layout title="What are you thinking?">New TweetsPage</Layout>
+}
+
+export default NewTweetPage;
+```
+
+Voy a mi componente `app()` y lo pintaré para ver que se repite el Layout. estarás pintando dos cabeceras
+
+```js
+  return (
+    <div className="App">
+      {isLogged ? ( 
+        <>
+        <TweetsPage onLogout={handleLogout} />
+        <NewTweetPage/>
+        </>
+        ) : (
+        <LoginPage onLogin={handleLogin} />
+      )}
+    </div>
+  );
+```
+
+**importante:** cuando hagas un componente que carga datos asincronamente, intenta pensar en todos sus estados , el estado normal es que muetsre un lista o un scroll inficnito, pero puede que tu app quiera mostrar un estado vacío, y lo peor es dejar un a pantalla en blanco al usuauri
+
+ `PageTweets.js` 
+ 
+ ¿que ocurre si cuando haga la llamada no hay nada aquí `getLatestTweets().then( tweets => setTweets( aquí--->[   ]<---- ))`?
+
+ ```js
+  useEffect(() => {
+    getLatestTweets().then( tweets => setTweets( [] ))
+ ```
+
+Es decir, tenemos que pensar que nuestro componente tweets page cuando va a renderizar normalmente una lista de tweets dentro de un expediente huele, pero qué ocurre si no hay tuits qué sacamos que sacamos hay que controlarlo.Eso vale. No tenemos dejar que esto siga su vida y nos muestre un mueble vacío, pues sin decirle nada al usuario, pues es una es una interfaz diseñada no entonces desde el punto de vista del usuario, podemos hacer algo así:
+
+ahora tenemos esto:
+
+```js
+    return (
+      <Layout title="What´s going on ...">
+        <div className={className}>
+          <Button onClick={handleLogout}>LogOut</Button>
+          <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+            {tweets.map(tweet => (
+              <li key={tweet.id}>
+                <span>{tweet.message}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Layout>
+    );
+```
+
+y le decimos , si hay algo saca esto, si no lo otro `{tweets.length ? <ul style={{ listStyle: 'none', borde... </ul> : ALGO MÁS TIENES QUE SACAR}`
+
+```js
+    // return (
+    //   <Layout title="What´s going on ...">
+    //     <div className={className}>
+    //       <Button onClick={handleLogout}>LogOut</Button>
+          {tweets.length ? <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+                              {tweets.map(tweet => (
+                                <li key={tweet.id}>
+                                  <span>{tweet.message}</span>
+                                </li>
+                              ))}
+                            </ul> : <Button $variant="primary">Be the firts one...</Button>
+          }
+    //     </div>
+    //   </Layout>
+    // );
+```
+
+la idea final es que estos dos componente de la `app()` 
+
+```js
+ <>
+        <TweetsPage onLogout={handleLogout} />
+        <NewTweetPage/>
+        </>
+```
+
+se muestren en funcion de la `URL`
+
+
+**Trabajando botonces de Login**
+
+En la cabecera tenemos el botón de login. La idea es que me sirva luego como enlace para llevar a la ventana del login, cuando tengamos todas las rutas, y también que haga el switch entre log y el logout, cuando yo esté loqueado, pues vamos a darle esa utilidad. ¿Dónde tenemos nuestro botón de loggin. Lo tenemos en la `Layout` en `<Header></Header>`.
+
+```js
+function Header() {
+    return (
+        <header>
+            <div>
+                <Icon width={32} height={32} fill='red'/>
+                {/*<img src={logo} alt="twitter-react" />{' '}*/}
+            </div>
+            <nav>
+                <Button variant= "primary">Log in</Button>
+            </nav>
+        </header>
+    );
+}
+```
+
+Para que este componenet sepa si se tiene que pintar en modo login o logut, necesitamos una cosa, saber si el usuario está loguado. Entonces, -> si el usuario esá logueado le pintas el logout `{isLogged ? (<Button>logout</Button>) : (<Button variant= "primary">Log in</Button>)}` pero estoy en Header, ¿como puedo hacer que el suario sepa que está loguado?
+
+El componente `<app></app>` su hijo es `<tweetPage></tweetPage>` el hijo de este es `<Layout></Layout>` y el hijo de este es `<Header></Header>` y este tiene la lógica `{isLogged ? (<Button>logout</Button>) : (<Button variant= "primary">Log in</Button>)}` incluso esta logica la sacaría como otro componente y le diría `OutBUtton` o similar, pero vamos a dojarlo.
+
+Solo hay una menra, que Header pregunte si esta loguado o no `function Header( {isLogged} ) {`,   
+pero Header le esta renderizando Layaou, `function Layout({ title, children, isLogged }) {` --> `<Header isLogged={}/>`
+```js
+function Layout({ title, children, isLogged }) {
+
+  ...
+
+
+  return (
+    <div>
+      <Header isLogged={isLogged}/>
+```
+
+pero Layaou no sale de ningún sitio, se lo han de decir desde TweetPage 
+
+```js
+
+function TweetsPage({ dark, onLogout, isLogged }) {
+
+  ...
+
+    return (
+      <Layout title="What´s going on ..." isLogged={isLogged}>
+```
+
+y ahora `app()` si  que puede decirla a `TweetPage` estás loguado `<TweetsPage onLogout={handleLogout} isLogged={isLogged}/>`
+
+```js
+  return (
+    <div className="App">
+      {isLogged ? ( 
+        <>
+        <TweetsPage onLogout={handleLogout} isLogged={isLogged}/>
+```
+
+y así una y otra vez ... es decir... **ESTO ES UN PROBLEMA** y lo vamos arreglar otro día.. pero ahora vamos a hacer esto
+
+
+Pero de verdad crees que `TweetPage` tiene que pasar `isLoged` debde de hacer de structuring isLoged? NO...
+
+---
+**nota** : quitamos el drak, y la  
+
+ //   const className = clsx('tweetsPage', { dark, light: !dark });  
+  const className = clsx(styles.tweetsPage, {  
+    [styles.dark]: dark,  
+    [styles.light]: !dark,  
+  });  
+
+---
+
+...seguimos
+
+El `ìsLogged`que introduces en la funcion como pa´rametro `function TweetsPage({onLogout, isLogged }) {` solo lo pasa a asu hijo como `<Layout title="What´s going on ..." isLogged={isLogged}>`. Entonces de todas las cosas que se pasan a `TweetPage` cuáles usa `TwetsPage` realmente, sólo `onLogout` las otras solo para dejarlo pasar. Entonces lo que se hace en estas ocasiones es :
+
+`function TweetsPage({onLogout, ...rest }) {` pásame lo que usaré yo y lo demás me lo metes en un objeto `...rest` me da igual cuantas, me las metes ahí
+`<Layout title="What´s going on ..." {rest}>` de esta manera todo lo que no sea onLogout TweetPage lo va a dejar pasar, hacemos un pasthrough
+ 
+```js
+
+import { getLatestTweets } from './service';
+import { useEffect, useState } from 'react';
+import Button from '../../components/Button';
+import { logout } from '../auth/service';
+import Layout from '../../components/layout/Layout';
+
+
+
+function TweetsPage({onLogout, ...rest }) {
+  // inicializa array de tweets vacío con la funcion
+  const [tweets, setTweets] = useState([]);
+
+  useEffect(() => {
+    getLatestTweets().then( tweets => setTweets( tweets )).catch(error => {
+      // Añade aquí el manejo de errores
+      console.error("Error fetching tweets:", error);
+
+      return function () {
+        console.log('Exit');
+      };
+    });
+
+  }, []); // El array de dependencias vacío indica que el efecto solo se ejecuta en el montaje
+  
+  
+  const handleLogout = async () => {
+    await logout();
+    onLogout();
+  }
+  
+    return (
+      <Layout title="What´s going on ..." isLogged={isLogged}>
+        <div className="TweetPage">
+          <Button onClick={handleLogout}>LogOut</Button>
+          {tweets.length ? <ul style={{ listStyle: 'none', borderColor: 'red', padding: 24}}>
+                              {tweets.map(tweet => (
+                                <li key={tweet.id}>
+                                  <span>{tweet.message}</span>
+                                </li>
+                              ))}
+                            </ul> : <Button $variant="primary">Be the firts one...</Button>
+          }
+        </div>
+      </Layout>
+    );
+}
+
+// lo exporto
+export default TweetsPage;
+
+```
+
+Layaou lo mismo y se lo pasa al siguiente
+
+```js
+function Layout({ title, children, ...rest }) {
+  return (
+    <div>
+      <Header {...rest}/>
+      <main>
+        <h2>{title}</h2>
+        {children}
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+export default Layout;
+```
+
+entonces el objeto `...rest` cusualmente ahora hay `isLoged` que llega a l Header, que es quien realmente lo necesita en su funcion
+
+```js
+function Header( {isLogged} ) {
+    return (
+        <header>
+            <div>
+                <Icon width={32} height={32} fill='red'/>
+                {/*<img src={logo} alt="twitter-react" />{' '}*/}
+            </div>
+            <nav>
+                {isLogged ? (<Button>logout</Button>) : 
+                            (<Button variant= "primary">Log in</Button>)
+                }
+            </nav>
+        </header>
+    );
+}
+```
+
+Y ahora en el button tendremos que ponerle la lógica del click y el metodo de esa logica que antes estaba en `tweetsPage` y le quieto el `<Button onClick={handleLogout}>LogOut</Button>`
+```js
+const handleLogout = async () => {
+  await logout();
+  onLogout();
+}
+```
+
+y el `onLogout()` lo has de recibir por props que viene desde app y `function Header( {isLogged, onLogout} ) {`
+
+y ahora en `TweetsPage` las propiedades que recibe todas, se las pasa al siguiente, entonces a esas propiedades son las `props`. "Props" es una abreviatura de "propiedades". En esencia, son datos que se pasan de un componente padre a un componente hijo en una aplicación.
+
+
+```js
+function TweetsPage(props) {
+
+  ...
+
+
+return (
+<Layout title="What´s going on ..." {...props}>
+
 
